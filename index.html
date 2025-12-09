@@ -10,45 +10,62 @@
       margin: 0;
       font-family: Bookman Old Style;
       text-align: center;
-      background: #87CEEB;
+      background: linear-gradient(#6ecfff, #e9f8ff);
+      overflow: hidden;
     }
 
     #ui {
       position: relative;
       z-index: 10;
-      padding-top: 20px;
+      padding-top: 16px;
+    }
+
+    h1 {
+      font-size: 34px;
+      color: #333;
+      margin: 8px 0;
     }
 
     #question {
-      font-size: 26px;
-      margin: 10px;
+      font-size: 28px;
       font-weight: bold;
+      margin: 10px 0;
     }
 
     input {
       font-size: 20px;
-      padding: 10px;
+      padding: 10px 16px;
       width: 120px;
-      border-radius: 12px;
-      border: 1px solid #888;
+      border-radius: 16px;
+      border: 1px solid #aaa;
       text-align: center;
     }
 
     button {
       font-size: 18px;
-      padding: 12px 24px;
-      border-radius: 12px;
+      padding: 12px 28px;
+      border-radius: 18px;
       border: none;
-      background: #4CAF50;
+      background: #5edc7a;
       color: white;
       margin-top: 10px;
     }
 
+    #result {
+      font-size: 20px;
+      margin-top: 8px;
+      min-height: 26px;
+      font-weight: bold;
+      color: #444;
+    }
+
     canvas {
-      display: block;
-      margin: 0 auto;
-      border: 2px solid black;
-      background: #9ad9ff;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
     }
   </style>
 </head>
@@ -58,30 +75,45 @@
   <div id="ui">
     <h1>Speed Math</h1>
     <div id="question"></div>
-    <input id="answer" type="number" inputmode="numeric">
-    <br><br>
+    <input id="answer" type="number" inputmode="numeric" placeholder="Answer">
+    <br>
     <button onclick="check()">Submit</button>
-    <p id="result"></p>
+    <div id="result"></div>
   </div>
 
-  <canvas id="gameCanvas" width="320" height="240"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
   <script>
     const canvas = document.getElementById("gameCanvas")
     const ctx = canvas.getContext("2d")
 
+    function resize() {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    window.addEventListener("resize", resize)
+    resize()
+
     let a = 0
     let b = 0
+    let score = 0
     let level = 1
     let season = "winter"
     let operator = "+"
-    let score = 0
 
-    let trees = 1
-    let flowers = 0
-    let cloudOffset = 0
-    let leaves = 0
-    let snow = 0
+    let treeCount = 2
+    let flowerCount = 0
+    let cloudCover = 80
+    let leafDrops = 0
+    let snowflakes = []
+
+    for (let i = 0; i < 40; i++) {
+      snowflakes.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        speed: 1 + Math.random()
+      })
+    }
 
     function setSeason() {
       if (level === 1) season = "winter"
@@ -91,20 +123,34 @@
 
       if (season === "winter") operator = "+"
       if (season === "spring") operator = "-"
-      if (season === "summer") operator = "×"
-      if (season === "autumn") operator = "÷"
+      if (season === "summer") operator = "*"
+      if (season === "autumn") operator = "/"
     }
 
     function newQuestion() {
-      a = Math.floor(Math.random() * 10) + 1
-      b = Math.floor(Math.random() * 10) + 1
+      let max = 10 + level * 5
+      a = Math.floor(Math.random() * max) + 1
+      b = Math.floor(Math.random() * max) + 1
 
-      if (operator === "÷") {
-        a = b * (Math.floor(Math.random() * 5) + 1)
+      if (operator === "-") {
+        if (b > a) {
+          let t = a
+          a = b
+          b = t
+        }
       }
 
+      if (operator === "/") {
+        a = b * (Math.floor(Math.random() * 10) + 1)
+      }
+
+      let symbol = "+"
+      if (operator === "-") symbol = "-"
+      if (operator === "*") symbol = "×"
+      if (operator === "/") symbol = "÷"
+
       document.getElementById("question").innerText =
-        a + " " + operator + " " + b + " = ?"
+        a + " " + symbol + " " + b + " = ?"
     }
 
     function check() {
@@ -113,116 +159,140 @@
       let correct = 0
       if (operator === "+") correct = a + b
       if (operator === "-") correct = a - b
-      if (operator === "×") correct = a * b
-      if (operator === "÷") correct = a / b
+      if (operator === "*") correct = a * b
+      if (operator === "/") correct = a / b
 
       if (user === correct) {
         score++
 
-        if (season === "winter") trees++
-        if (season === "spring") flowers++
-        if (season === "summer") cloudOffset += 10
-        if (season === "autumn") leaves++
-        if (season === "winter") snow++
+        if (season === "winter") treeCount++
+        if (season === "spring") flowerCount++
+        if (season === "summer") cloudCover -= 10
+        if (season === "autumn") leafDrops++
 
-        document.getElementById("result").innerText = "Correct"
+        document.getElementById("result").innerText = "Great"
       } else {
         document.getElementById("result").innerText = "Try again"
       }
 
-      if (score % 5 === 0 && level < 4) {
+      if (score >= level * 5 && level < 4) {
         level++
         setSeason()
       }
 
-      drawScene()
-      newQuestion()
       document.getElementById("answer").value = ""
     }
 
-    function drawScene() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      if (season === "winter") ctx.fillStyle = "#ccf2ff"
-      if (season === "spring") ctx.fillStyle = "#d4fcd4"
-      if (season === "summer") ctx.fillStyle = "#ffeeaa"
-      if (season === "autumn") ctx.fillStyle = "#ffddcc"
-
+    function drawSky() {
+      let grad = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      grad.addColorStop(0, "#7ddcff")
+      grad.addColorStop(1, "#eaffe8")
+      ctx.fillStyle = grad
       ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
 
-      // Ground
-      ctx.fillStyle = "#228B22"
-      ctx.fillRect(0, 180, canvas.width, 60)
-
-      // Sun
-      ctx.fillStyle = "yellow"
+    function drawMountains() {
+      ctx.fillStyle = "#9fd39f"
       ctx.beginPath()
-      ctx.arc(280 - cloudOffset, 40, 20, 0, Math.PI*2)
+      ctx.moveTo(0, canvas.height * 0.65)
+      ctx.lineTo(canvas.width * 0.25, canvas.height * 0.45)
+      ctx.lineTo(canvas.width * 0.5, canvas.height * 0.65)
+      ctx.fill()
+    }
+
+    function drawGrass() {
+      ctx.fillStyle = "#6bd66b"
+      ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height)
+    }
+
+    function drawSunAndCloud() {
+      let sunX = canvas.width - 120
+      let sunY = 120
+
+      ctx.beginPath()
+      ctx.fillStyle = "#ffd93b"
+      ctx.arc(sunX, sunY, 60, 0, Math.PI * 2)
       ctx.fill()
 
-      // Cloud
       ctx.fillStyle = "white"
       ctx.beginPath()
-      ctx.arc(260 - cloudOffset, 40, 12, 0, Math.PI*2)
-      ctx.arc(275 - cloudOffset, 35, 12, 0, Math.PI*2)
-      ctx.arc(290 - cloudOffset, 40, 12, 0, Math.PI*2)
+      ctx.arc(sunX - cloudCover, sunY, 30, 0, Math.PI * 2)
+      ctx.arc(sunX - cloudCover + 35, sunY + 10, 30, 0, Math.PI * 2)
+      ctx.arc(sunX - cloudCover - 35, sunY + 10, 30, 0, Math.PI * 2)
       ctx.fill()
+    }
 
-      // Trees
-      for (let i = 0; i < trees; i++) {
-        let x = 30 + i * 30
+    function drawTrees() {
+      for (let i = 0; i < treeCount; i++) {
+        let x = 40 + i * 60
+        let y = canvas.height * 0.65
 
-        ctx.fillStyle = "#8B4513"
-        ctx.fillRect(x, 150, 10, 30)
+        ctx.fillStyle = "#8b5a2b"
+        ctx.fillRect(x, y - 40, 14, 40)
 
-        ctx.fillStyle = "green"
         ctx.beginPath()
-        ctx.arc(x + 5, 145, 15, 0, Math.PI*2)
+        ctx.fillStyle = "#2ecc71"
+        ctx.arc(x + 7, y - 50, 30, 0, Math.PI * 2)
         ctx.fill()
       }
+    }
 
-      // Snow
-      if (season === "winter") {
+    function drawFlowers() {
+      for (let i = 0; i < flowerCount; i++) {
+        let x = 50 + i * 40
+        let y = canvas.height * 0.65 + 20
+        let colors = ["pink", "yellow", "purple"]
+        ctx.beginPath()
+        ctx.fillStyle = colors[i % 3]
+        ctx.arc(x, y, 6, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+
+    function drawSnow() {
+      snowflakes.forEach(s => {
+        ctx.beginPath()
         ctx.fillStyle = "white"
-        for (let i = 0; i < snow; i++) {
-          let x = (i * 20) % canvas.width
-          let y = (i * 15) % canvas.height
-          ctx.beginPath()
-          ctx.arc(x, y, 2, 0, Math.PI*2)
-          ctx.fill()
+        ctx.arc(s.x, s.y, 3, 0, Math.PI * 2)
+        ctx.fill()
+
+        s.y += s.speed
+        if (s.y > canvas.height) {
+          s.y = 0
+          s.x = Math.random() * canvas.width
         }
+      })
+    }
+
+    function drawLeaves() {
+      for (let i = 0; i < leafDrops; i++) {
+        let x = (i * 30) % canvas.width
+        let y = (i * 20) % canvas.height
+
+        ctx.beginPath()
+        ctx.fillStyle = "orange"
+        ctx.arc(x, y, 5, 0, Math.PI * 2)
+        ctx.fill()
       }
+    }
 
-      // Flowers
-      if (season === "spring") {
-        for (let i = 0; i < flowers; i++) {
-          let x = (i * 25) % canvas.width
-          let y = 170
+    function drawAll() {
+      drawSky()
+      drawMountains()
+      drawGrass()
+      drawSunAndCloud()
+      drawTrees()
 
-          ctx.fillStyle = "pink"
-          ctx.beginPath()
-          ctx.arc(x, y, 4, 0, Math.PI*2)
-          ctx.fill()
-        }
-      }
+      if (season === "winter") drawSnow()
+      if (season === "spring") drawFlowers()
+      if (season === "autumn") drawLeaves()
 
-      // Leaves
-      if (season === "autumn") {
-        for (let i = 0; i < leaves; i++) {
-          let x = (i * 20) % canvas.width
-          let y = 100 + (i * 10)
-
-          ctx.fillStyle = "orange"
-          ctx.beginPath()
-          ctx.arc(x, y, 4, 0, Math.PI*2)
-          ctx.fill()
-        }
-      }
+      requestAnimationFrame(drawAll)
     }
 
     setSeason()
     newQuestion()
-    drawScene()
+    drawAll()
   </script>
 
 </body>
