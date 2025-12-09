@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Math App</title>
+  <title>Speed Math</title>
   <style>
     body {
       font-family: "Bookman Old Style";
       text-align: center;
       margin: 0;
       padding: 0;
+      background: lightblue;
     }
     #gameCanvas {
       display: block;
       margin: 20px auto;
-      background: lightblue; /* שמיים */
-      border: 2px solid #000000; /* אפשר להסיר */
+      border: 2px solid #000000;
+      background: lightblue;
     }
     input {
       width: 50px;
@@ -30,23 +31,22 @@
 
   <canvas id="gameCanvas" width="500" height="400"></canvas>
 
-  <div style="margin-top: 40px;">
-    <h2>Tree</h2>
-    <pre style="font-size: 18px; display: inline-block;">
-        
-
-   🎄 🎄 🎄
-  
-
-    </pre>
-  </div>
-
   <script>
     // ==========================
-    // ציור רקע ועצים
+    // ציור הרקע והגרפיקה
     // ==========================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
+    let clouds = [
+      {x: 50, y: 50},
+      {x: 200, y: 80},
+      {x: 350, y: 40}
+    ];
+    let birds = [
+      {x: 100, y: 100},
+      {x: 300, y: 120}
+    ];
 
     function drawBackground() {
       // שמיים
@@ -56,6 +56,33 @@
       // דשא
       ctx.fillStyle = "green";
       ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+
+      // שמש
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.arc(450, 50, 40, 0, Math.PI * 2);
+      ctx.fill();
+
+      // עננים
+      ctx.fillStyle = "white";
+      clouds.forEach(cloud => {
+        ctx.beginPath();
+        ctx.arc(cloud.x, cloud.y, 20, 0, Math.PI * 2);
+        ctx.arc(cloud.x + 20, cloud.y + 10, 20, 0, Math.PI * 2);
+        ctx.arc(cloud.x - 20, cloud.y + 10, 20, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // ציפורים קטנות
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      birds.forEach(bird => {
+        ctx.beginPath();
+        ctx.moveTo(bird.x, bird.y);
+        ctx.lineTo(bird.x + 10, bird.y - 5);
+        ctx.lineTo(bird.x + 20, bird.y);
+        ctx.stroke();
+      });
     }
 
     function drawTree(x, y) {
@@ -116,3 +143,4 @@
   </script>
 </body>
 </html>
+
