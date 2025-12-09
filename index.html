@@ -2,14 +2,35 @@
 <html>
 <head>
   <title>Math App</title>
+  <style>
+    body {
+      font-family: "Bookman Old Style";
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    #gameCanvas {
+      display: block;
+      margin: 20px auto;
+      background: lightblue; /* שמיים */
+      border: 2px solid #000000; /* אפשר להסיר */
+    }
+    input {
+      width: 50px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body style="font-family: bookman old style; text-align: center;">
+<body>
   <h1>Speed Math</h1>
   <div id="question"></div>
   <input id="answer" type="number">
   <button onclick="check()">Submit</button>
   <p id="result"></p>
-<div style="margin-top: 40px;">
+
+  <canvas id="gameCanvas" width="500" height="400"></canvas>
+
+  <div style="margin-top: 40px;">
     <h2>Tree</h2>
     <pre style="font-size: 18px; display: inline-block;">
         🌲
@@ -23,24 +44,78 @@
 🌿🌿🌿🌿🌿🌿
     </pre>
   </div>
+
   <script>
+    // ==========================
+    // ציור רקע ועצים
+    // ==========================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawBackground() {
+      // שמיים
+      ctx.fillStyle = "lightblue";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // דשא
+      ctx.fillStyle = "green";
+      ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+    }
+
+    function drawTree(x, y) {
+      // גזע
+      ctx.fillStyle = "saddlebrown";
+      ctx.fillRect(x - 10, y - 40, 20, 40);
+
+      // עלים
+      ctx.fillStyle = "darkgreen";
+      ctx.beginPath();
+      ctx.moveTo(x, y - 80);
+      ctx.lineTo(x - 30, y - 40);
+      ctx.lineTo(x + 30, y - 40);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawForest() {
+      drawTree(100, 350);
+      drawTree(200, 360);
+      drawTree(300, 340);
+      drawTree(400, 355);
+    }
+
+    function drawScene() {
+      drawBackground();
+      drawForest();
+    }
+
+    drawScene();
+
+    // ==========================
+    // משחק מתמטי
+    // ==========================
     let a, b, score = 0;
+
     function newQ() {
       a = Math.floor(Math.random() * 20) + 1;
       b = Math.floor(Math.random() * 20) + 1;
       document.getElementById("question").innerText = a + " + " + b + " = ?";
     }
+
     function check() {
       const user = Number(document.getElementById("answer").value);
       if (user === a + b) {
         document.getElementById("result").innerText = "Correct!";
         score++;
+        // הוספת עץ קטן נוסף במקום אקראי
+        drawTree(Math.random() * 400 + 50, 360);
       } else {
-        document.getElementById("result").innerText = "your tree hahahah !";
+        document.getElementById("result").innerText = "Try again!";
       }
       document.getElementById("answer").value = "";
       newQ();
     }
+
     newQ();
   </script>
 </body>
