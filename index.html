@@ -104,14 +104,14 @@
       if (level === 2) season = "spring"
       if (level === 3) season = "summer"
       if (level === 4) season = "autumn"
-      setOperation()
+      setOperator()
       drawScene()
       newQuestion()
     }
 
-    function setOperation() {
+    function setOperator() {
       if (season === "winter") operator = "+"
-      if (season === "spring") operator = "−"
+      if (season === "spring") operator = "-"
       if (season === "summer") operator = "×"
       if (season === "autumn") operator = "÷"
     }
@@ -126,11 +126,11 @@
 
         for (let i = 0; i < treeCount; i++) {
           ctx.fillStyle = "#654321"
-          ctx.fillRect(80 + i*90, 210, 24, 90)
+          ctx.fillRect(80 + i * 90, 210, 24, 90)
 
           ctx.beginPath()
           ctx.fillStyle = "#1e8f44"
-          ctx.arc(92 + i*90, 200, 40, 0, Math.PI*2)
+          ctx.arc(92 + i * 90, 200, 40, 0, Math.PI * 2)
           ctx.fill()
         }
       }
@@ -143,7 +143,7 @@
         for (let i = 0; i < flowerCount; i++) {
           ctx.beginPath()
           ctx.fillStyle = "pink"
-          ctx.arc(40 + i*35, 320, 8, 0, Math.PI*2)
+          ctx.arc(40 + i * 35, 320, 8, 0, Math.PI * 2)
           ctx.fill()
         }
       }
@@ -155,7 +155,7 @@
 
         ctx.beginPath()
         ctx.fillStyle = "yellow"
-        ctx.arc(600, 80, 45, 0, Math.PI*2)
+        ctx.arc(600, 80, 45, 0, Math.PI * 2)
         ctx.fill()
 
         ctx.fillStyle = "white"
@@ -170,7 +170,7 @@
         leaves.forEach((leaf, i) => {
           ctx.beginPath()
           ctx.fillStyle = "orange"
-          ctx.arc(leaf.x, leaf.y, 6, 0, Math.PI*2)
+          ctx.arc(leaf.x, leaf.y, 6, 0, Math.PI * 2)
           ctx.fill()
           leaf.y += 2
           if (leaf.y > 340) leaves.splice(i, 1)
@@ -183,10 +183,10 @@
       a = Math.floor(Math.random() * max) + 1
       b = Math.floor(Math.random() * max) + 1
 
-      if (operator === "−" && b > a) {
-        let t = a
+      if (operator === "-" && b > a) {
+        let temp = a
         a = b
-        b = t
+        b = temp
       }
 
       if (operator === "÷") {
@@ -202,7 +202,7 @@
 
       let correct
       if (operator === "+") correct = a + b
-      if (operator === "−") correct = a − b
+      if (operator === "-") correct = a - b
       if (operator === "×") correct = a * b
       if (operator === "÷") correct = a / b
 
@@ -212,9 +212,11 @@
         if (season === "winter") treeCount++
         if (season === "spring") flowerCount++
         if (season === "summer") cloudOffset += 20
-        if (season === "autumn") leaves.push({x: Math.random()*700, y: 0})
+        if (season === "autumn") {
+          leaves.push({ x: Math.random() * 700, y: 0 })
+        }
 
-        document.getElementById("result").innerText = "Excellent"
+        document.getElementById("result").innerText = "Correct"
       } else {
         document.getElementById("result").innerText = "Try again"
       }
