@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>Speed Math Seasons</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: "Bookman Old Style";
@@ -24,16 +26,54 @@
     #ui {
       position: relative;
       z-index: 5;
-      padding-top: 20px;
+      padding-top: 10px;
+      background: rgba(255,255,255,0.7);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 5px;
+    }
+
+    p {
+      margin: 4px;
+      font-size: 16px;
+    }
+
+    #question {
+      font-size: 24px;
+      margin: 10px;
+      font-weight: bold;
     }
 
     input {
-      width: 60px;
-      font-size: 18px;
+      width: 120px;
+      font-size: 22px;
       text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 8px;
+      background: #4caf50;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 20px; }
+      #question { font-size: 20px; }
+      input { width: 100px; }
+      button { font-size: 18px; }
     }
   </style>
 </head>
+
 <body>
 
 <canvas id="gameCanvas"></canvas>
@@ -46,7 +86,8 @@
   <p id="timeBox">Time 30</p>
 
   <div id="question"></div>
-  <input id="answer" type="number">
+  <input id="answer" type="number" inputmode="numeric">
+  <br>
   <button onclick="check()">Submit</button>
   <p id="result"></p>
   <p id="medal"></p>
@@ -60,6 +101,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
+
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
@@ -91,6 +133,7 @@
     flowers = [];
     snowflakes = [];
     leaves = [];
+    mountains = [];
 
     for (let i = 0; i < 25; i++) {
       trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
@@ -113,12 +156,7 @@
     }
 
     for (let i = 0; i < 5; i++) {
-      mountains.push({
-        x: i * 300,
-        y: canvas.height - 100,
-        width: 400,
-        height: 200
-      });
+      mountains.push({x: i * 300, y: canvas.height - 100, width: 400, height: 200});
     }
   }
 
@@ -136,16 +174,6 @@
       ctx.fill();
     }
 
-    ctx.fillStyle = "#8B4513";
-    mountains.forEach(m => {
-      ctx.beginPath();
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(m.x + m.width / 2, m.y - m.height);
-      ctx.lineTo(m.x + m.width, m.y);
-      ctx.closePath();
-      ctx.fill();
-    });
-
     if (season === "winter") ctx.fillStyle = "white";
     else ctx.fillStyle = "#4CAF50";
     ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
@@ -155,20 +183,9 @@
       ctx.beginPath();
       ctx.arc(c.x, c.y, 30, 0, Math.PI * 2);
       ctx.arc(c.x + 30, c.y + 10, 30, 0, Math.PI * 2);
-      ctx.arc(c.x - 30, c.y + 10, 30, 0, Math.PI * 2);
+      ctx.arc(c.x + 60, c.y, 30, 0, Math.PI * 2);
       ctx.fill();
     });
-
-    if (season === "summer") {
-      ctx.strokeStyle = "black";
-      birds.forEach(b => {
-        ctx.beginPath();
-        ctx.moveTo(b.x, b.y);
-        ctx.lineTo(b.x + 15, b.y - 8);
-        ctx.lineTo(b.x + 30, b.y);
-        ctx.stroke();
-      });
-    }
 
     if (season === "spring") {
       ctx.fillStyle = "pink";
@@ -228,39 +245,33 @@
       if (c.x > canvas.width) c.x = -60;
     });
 
-    birds.forEach(b => {
-      b.x += 0.5;
-      if (b.x > canvas.width) b.x = -50;
-    });
-
-    if (season === "winter") {
-      snowflakes.forEach(s => {
-        s.y += 1;
-        if (s.y > canvas.height) s.y = 0;
-      });
-    }
-
-    if (season === "autumn") {
-      leaves.forEach(l => {
-        l.y += 0.6;
-        if (l.y > canvas.height) l.y = 0;
-      });
-    }
-
     requestAnimationFrame(animate);
   }
 
-  setupScene();
-  updateSeason();
-  animate();
-
-  let a, b;
+  let a;
+  let b;
+  let op;
 
   function newQ() {
     let max = 10 + level * 5;
+
     a = Math.floor(Math.random() * max) + 1;
     b = Math.floor(Math.random() * max) + 1;
-    document.getElementById("question").innerText = a + " + " + b + " = ?";
+
+    const ops = ["+", "−", "×", "÷"];
+    op = ops[Math.floor(Math.random() * ops.length)];
+
+    if (op === "−" && b > a) {
+      let t = a;
+      a = b;
+      b = t;
+    }
+
+    if (op === "÷") {
+      a = a * b;
+    }
+
+    document.getElementById("question").innerText = a + " " + op + " " + b + " = ?";
   }
 
   function updateUI() {
@@ -270,8 +281,14 @@
 
   function check() {
     const user = Number(document.getElementById("answer").value);
+    let correct = 0;
 
-    if (user === a + b) {
+    if (op === "+") correct = a + b;
+    if (op === "−") correct = a - b;
+    if (op === "×") correct = a * b;
+    if (op === "÷") correct = a / b;
+
+    if (user === correct) {
       score++;
       document.getElementById("result").innerText = "Correct";
 
@@ -307,6 +324,9 @@
     }, 1000);
   }
 
+  setupScene();
+  updateSeason();
+  animate();
   updateUI();
   newQ();
   startTimer();
