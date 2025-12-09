@@ -4,45 +4,72 @@
   <title>Speed Math</title>
   <style>
     body {
-      font-family: "Bookman Old Style";
       margin: 0;
       padding: 0;
       overflow: hidden;
+      font-family: "Bookman Old Style";
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #87CEEB; /* שמיים כחולים חורפיים */
+      background: #D3DCE6; /* אפור-תכלת */
     }
 
     #gameContainer {
       position: relative;
-      width: 600px;
-      text-align: center;
-      z-index: 1;
+      width: 800px;
+      height: 600px;
     }
 
     #gameCanvas {
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 0;
       width: 100%;
       height: 100%;
+      z-index: 0;
     }
 
     #gameUI {
       position: relative;
       z-index: 2;
-      background: rgba(255,255,255,0.8);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(255,255,255,0.7);
+      border-radius: 20px;
       padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+
+    #question {
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
 
     input {
-      width: 50px;
+      font-size: 2em;
+      width: 80px;
       text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 1.5em;
+      padding: 10px 20px;
+    }
+
+    #result {
+      font-size: 2em;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -64,97 +91,138 @@
     const container = document.getElementById('gameContainer');
 
     canvas.width = container.offsetWidth;
-    canvas.height = 400;
+    canvas.height = container.offsetHeight;
 
-    // עננים וציפורים
-    let clouds = [
-      {x: 50, y: 50},
-      {x: 200, y: 80},
-      {x: 350, y: 40}
-    ];
-
-    function drawBackground() {
-      const w = canvas.width;
-      const h = canvas.height;
-
-      // שמיים חורפיים בהירים
-      ctx.fillStyle = "#B0E0E6"; 
-      ctx.fillRect(0, 0, w, h);
-
-      // שמש חלשה בחורף
-      ctx.fillStyle = "#FFFF99";
-      ctx.beginPath();
-      ctx.arc(w - 80, 80, 30, 0, Math.PI * 2);
-      ctx.fill();
-
-      // הרים קטנים ועדינים
-      ctx.fillStyle = "#A9A9A9"; // אפור חורפי
-      ctx.beginPath();
-      ctx.moveTo(0, h - 80);
-      ctx.lineTo(100, h - 200);
-      ctx.lineTo(200, h - 80);
-      ctx.lineTo(300, h - 180);
-      ctx.lineTo(400, h - 80);
-      ctx.lineTo(500, h - 150);
-      ctx.lineTo(600, h - 80);
-      ctx.lineTo(w, h - 80);
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
-      ctx.fill();
-
-      // דשא עם שלג קל
-      ctx.fillStyle = "#F0F8FF"; // לבן כחול
-      ctx.fillRect(0, h - 80, w, 80);
-
-      // עננים חורפיים
-      ctx.fillStyle = "white";
-      clouds.forEach(cloud => {
-        ctx.beginPath();
-        ctx.arc(cloud.x, cloud.y, 20, 0, Math.PI * 2);
-        ctx.arc(cloud.x + 30, cloud.y + 10, 20, 0, Math.PI * 2);
-        ctx.arc(cloud.x - 30, cloud.y + 10, 20, 0, Math.PI * 2);
-        ctx.fill();
+    // שלג
+    let snowflakes = [];
+    for (let i = 0; i < 150; i++) {
+      snowflakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 4 + 2,
+        speed: Math.random() * 2 + 1
       });
     }
 
-    function drawTree(x, y, size = 1) {
-      // גזע דק
-      ctx.fillStyle = "#8B4513";
-      ctx.fillRect(x - 5 * size, y - 40 * size, 10 * size, 40 * size);
+    function drawSnow() {
+      snowflakes.forEach(f => {
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
 
-      // עלים בצורת משולש דק
-      ctx.fillStyle = "#006400";
-      ctx.beginPath();
-      ctx.moveTo(x, y - 80 * size);
-      ctx.lineTo(x - 25 * size, y - 40 * size);
-      ctx.lineTo(x + 25 * size, y - 40 * size);
-      ctx.closePath();
-      ctx.fill();
+        f.y += f.speed;
+        if (f.y > canvas.height) f.y = 0;
+      });
+    }
 
-      // שכבה שניה קטנה יותר
+    function drawTree() {
+      const x = canvas.width/2;
+      const y = canvas.height - 150;
+
+      // גזע
+      ctx.fillStyle = "#4B3621";
+      ctx.fillRect(x - 20, y, 40, 150);
+
+      // עלים עם שלג
+      ctx.fillStyle = "#FFFFFF";
       ctx.beginPath();
-      ctx.moveTo(x, y - 95 * size);
-      ctx.lineTo(x - 20 * size, y - 55 * size);
-      ctx.lineTo(x + 20 * size, y - 55 * size);
-      ctx.closePath();
+      ctx.arc(x, y - 30, 60, 0, Math.PI * 2);
+      ctx.arc(x - 40, y, 50, 0, Math.PI * 2);
+      ctx.arc(x + 40, y, 50, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    function drawForest() {
-      drawTree(100, canvas.height - 80, 1);
-      drawTree(200, canvas.height - 90, 0.8);
-      drawTree(300, canvas.height - 85, 1.2);
-      drawTree(400, canvas.height - 90, 1);
-      drawTree(500, canvas.height - 80, 0.9);
+    function drawSwing() {
+      const x = canvas.width/2;
+      const y = canvas.height - 150;
+
+      // חבלים
+      ctx.strokeStyle = "#A0522D";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x - 30, y - 20);
+      ctx.lineTo(x - 30, y - 60);
+      ctx.moveTo(x + 30, y - 20);
+      ctx.lineTo(x + 30, y - 60);
+      ctx.stroke();
+
+      // מושב
+      ctx.fillStyle = "#8B4513";
+      ctx.fillRect(x - 35, y - 60, 70, 10);
+    }
+
+    function drawSnowman() {
+      const x = canvas.width/2;
+      const y = canvas.height - 60;
+
+      // גוף
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y - 35, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      // פנים
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(x - 5, y - 38, 2, 0, Math.PI * 2);
+      ctx.arc(x + 5, y - 38, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // אף גזר
+      ctx.fillStyle = "#FFA500";
+      ctx.beginPath();
+      ctx.moveTo(x, y - 35);
+      ctx.lineTo(x + 10, y - 33);
+      ctx.lineTo(x, y - 31);
+      ctx.fill();
+
+      // כובע
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(x - 12, y - 55, 24, 10);
+      ctx.fillRect(x - 8, y - 65, 16, 10);
+
+      // צעיף
+      ctx.fillStyle = "#FF0000";
+      ctx.fillRect(x - 15, y - 27, 30, 5);
+
+      // זרועות
+      ctx.strokeStyle = "#4B3621";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x - 20, y - 40);
+      ctx.lineTo(x - 40, y - 50);
+      ctx.moveTo(x + 20, y - 40);
+      ctx.lineTo(x + 40, y - 50);
+      ctx.stroke();
     }
 
     function drawScene() {
-      drawBackground();
-      drawForest();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // רקע שמיים
+      ctx.fillStyle = "#D3DCE6";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // שלג מתחת
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+
+      drawTree();
+      drawSwing();
+      drawSnowman();
+      drawSnow();
     }
 
-    drawScene();
+    function animate() {
+      drawScene();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
 
     // ==========================
     // משחק מתמטי
@@ -171,9 +239,6 @@
       const user = Number(document.getElementById("answer").value);
       if (user === a + b) {
         document.getElementById("result").innerText = "Correct!";
-        score++;
-        // הוספת עץ קטן נוסף
-        drawTree(Math.random() * (canvas.width - 50) + 25, canvas.height - 80, 0.7);
       } else {
         document.getElementById("result").innerText = "Try again!";
       }
