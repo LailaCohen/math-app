@@ -1,299 +1,316 @@
 <!DOCTYPE html>
-<html lang="he">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Speed Math</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>Speed Math Seasons</title>
   <style>
     body {
+      font-family: "Bookman Old Style";
+      text-align: center;
       margin: 0;
-      font-family: Bookman Old Style;
-      text-align: center;
-      background: linear-gradient(#6ecfff, #e9f8ff);
+      padding: 0;
       overflow: hidden;
+      background: #b3e5ff;
     }
 
-    #ui {
-      position: relative;
-      z-index: 10;
-      padding-top: 16px;
-    }
-
-    h1 {
-      font-size: 34px;
-      color: #333;
-      margin: 8px 0;
-    }
-
-    #question {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-
-    input {
-      font-size: 20px;
-      padding: 10px 16px;
-      width: 120px;
-      border-radius: 16px;
-      border: 1px solid #aaa;
-      text-align: center;
-    }
-
-    button {
-      font-size: 18px;
-      padding: 12px 28px;
-      border-radius: 18px;
-      border: none;
-      background: #5edc7a;
-      color: white;
-      margin-top: 10px;
-    }
-
-    #result {
-      font-size: 20px;
-      margin-top: 8px;
-      min-height: 26px;
-      font-weight: bold;
-      color: #444;
-    }
-
-    canvas {
+    #gameCanvas {
       position: absolute;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
+      z-index: 1;
+    }
+
+    #ui {
+      position: relative;
+      z-index: 5;
+      padding-top: 20px;
+    }
+
+    input {
+      width: 60px;
+      font-size: 18px;
+      text-align: center;
     }
   </style>
 </head>
-
 <body>
 
-  <div id="ui">
-    <h1>Speed Math</h1>
-    <div id="question"></div>
-    <input id="answer" type="number" inputmode="numeric" placeholder="Answer">
-    <br>
-    <button onclick="check()">Submit</button>
-    <div id="result"></div>
-  </div>
+<canvas id="gameCanvas"></canvas>
 
-  <canvas id="gameCanvas"></canvas>
+<div id="ui">
+  <h1>Speed Math</h1>
+  <p id="seasonBox">Season Spring</p>
+  <p id="levelBox">Level 1</p>
+  <p id="scoreBox">Score 0</p>
+  <p id="timeBox">Time 30</p>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas")
-    const ctx = canvas.getContext("2d")
+  <div id="question"></div>
+  <input id="answer" type="number">
+  <button onclick="check()">Submit</button>
+  <p id="result"></p>
+  <p id="medal"></p>
+</div>
 
-    function resize() {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-    window.addEventListener("resize", resize)
-    resize()
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
 
-    let a = 0
-    let b = 0
-    let score = 0
-    let level = 1
-    let season = "winter"
-    let operator = "+"
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
 
-    let treeCount = 2
-    let flowerCount = 0
-    let cloudCover = 80
-    let leafDrops = 0
-    let snowflakes = []
+  let trees = [];
+  let clouds = [];
+  let birds = [];
+  let flowers = [];
+  let snowflakes = [];
+  let leaves = [];
+  let mountains = [];
 
-    for (let i = 0; i < 40; i++) {
-      snowflakes.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        speed: 1 + Math.random()
-      })
-    }
+  let score = 0;
+  let level = 1;
+  let timeLeft = 30;
+  let season = "spring";
 
-    function setSeason() {
-      if (level === 1) season = "winter"
-      if (level === 2) season = "spring"
-      if (level === 3) season = "summer"
-      if (level === 4) season = "autumn"
+  function updateSeason() {
+    if (level % 4 === 1) season = "spring";
+    if (level % 4 === 2) season = "summer";
+    if (level % 4 === 3) season = "autumn";
+    if (level % 4 === 0) season = "winter";
+    document.getElementById("seasonBox").innerText = "Season " + season;
+  }
 
-      if (season === "winter") operator = "+"
-      if (season === "spring") operator = "-"
-      if (season === "summer") operator = "*"
-      if (season === "autumn") operator = "/"
-    }
+  function setupScene() {
+    trees = [];
+    clouds = [];
+    birds = [];
+    flowers = [];
+    snowflakes = [];
+    leaves = [];
 
-    function newQuestion() {
-      let max = 10 + level * 5
-      a = Math.floor(Math.random() * max) + 1
-      b = Math.floor(Math.random() * max) + 1
-
-      if (operator === "-") {
-        if (b > a) {
-          let t = a
-          a = b
-          b = t
-        }
-      }
-
-      if (operator === "/") {
-        a = b * (Math.floor(Math.random() * 10) + 1)
-      }
-
-      let symbol = "+"
-      if (operator === "-") symbol = "-"
-      if (operator === "*") symbol = "×"
-      if (operator === "/") symbol = "÷"
-
-      document.getElementById("question").innerText =
-        a + " " + symbol + " " + b + " = ?"
+    for (let i = 0; i < 25; i++) {
+      trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
     }
 
-    function check() {
-      const user = Number(document.getElementById("answer").value)
-
-      let correct = 0
-      if (operator === "+") correct = a + b
-      if (operator === "-") correct = a - b
-      if (operator === "*") correct = a * b
-      if (operator === "/") correct = a / b
-
-      if (user === correct) {
-        score++
-
-        if (season === "winter") treeCount++
-        if (season === "spring") flowerCount++
-        if (season === "summer") cloudCover -= 10
-        if (season === "autumn") leafDrops++
-
-        document.getElementById("result").innerText = "Great"
-      } else {
-        document.getElementById("result").innerText = "Try again"
-      }
-
-      if (score >= level * 5 && level < 4) {
-        level++
-        setSeason()
-      }
-
-      document.getElementById("answer").value = ""
+    for (let i = 0; i < 6; i++) {
+      clouds.push({x: Math.random() * canvas.width, y: Math.random() * 200});
     }
 
-    function drawSky() {
-      let grad = ctx.createLinearGradient(0, 0, 0, canvas.height)
-      grad.addColorStop(0, "#7ddcff")
-      grad.addColorStop(1, "#eaffe8")
-      ctx.fillStyle = grad
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    for (let i = 0; i < 20; i++) {
+      flowers.push({x: Math.random() * canvas.width, y: canvas.height - 80});
     }
 
-    function drawMountains() {
-      ctx.fillStyle = "#9fd39f"
-      ctx.beginPath()
-      ctx.moveTo(0, canvas.height * 0.65)
-      ctx.lineTo(canvas.width * 0.25, canvas.height * 0.45)
-      ctx.lineTo(canvas.width * 0.5, canvas.height * 0.65)
-      ctx.fill()
+    for (let i = 0; i < 30; i++) {
+      snowflakes.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height});
     }
 
-    function drawGrass() {
-      ctx.fillStyle = "#6bd66b"
-      ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height)
+    for (let i = 0; i < 20; i++) {
+      leaves.push({x: Math.random() * canvas.width, y: Math.random() * 200});
     }
 
-    function drawSunAndCloud() {
-      let sunX = canvas.width - 120
-      let sunY = 120
+    for (let i = 0; i < 5; i++) {
+      mountains.push({
+        x: i * 300,
+        y: canvas.height - 100,
+        width: 400,
+        height: 200
+      });
+    }
+  }
 
-      ctx.beginPath()
-      ctx.fillStyle = "#ffd93b"
-      ctx.arc(sunX, sunY, 60, 0, Math.PI * 2)
-      ctx.fill()
+  function drawBackground() {
+    if (season === "spring") ctx.fillStyle = "#cceeff";
+    if (season === "summer") ctx.fillStyle = "#87CEEB";
+    if (season === "autumn") ctx.fillStyle = "#FFD39B";
+    if (season === "winter") ctx.fillStyle = "#eef6ff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "white"
-      ctx.beginPath()
-      ctx.arc(sunX - cloudCover, sunY, 30, 0, Math.PI * 2)
-      ctx.arc(sunX - cloudCover + 35, sunY + 10, 30, 0, Math.PI * 2)
-      ctx.arc(sunX - cloudCover - 35, sunY + 10, 30, 0, Math.PI * 2)
-      ctx.fill()
+    if (season === "summer" || season === "spring") {
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.arc(canvas.width - 80, 80, 50, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    function drawTrees() {
-      for (let i = 0; i < treeCount; i++) {
-        let x = 40 + i * 60
-        let y = canvas.height * 0.65
+    ctx.fillStyle = "#8B4513";
+    mountains.forEach(m => {
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x + m.width / 2, m.y - m.height);
+      ctx.lineTo(m.x + m.width, m.y);
+      ctx.closePath();
+      ctx.fill();
+    });
 
-        ctx.fillStyle = "#8b5a2b"
-        ctx.fillRect(x, y - 40, 14, 40)
+    if (season === "winter") ctx.fillStyle = "white";
+    else ctx.fillStyle = "#4CAF50";
+    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
 
-        ctx.beginPath()
-        ctx.fillStyle = "#2ecc71"
-        ctx.arc(x + 7, y - 50, 30, 0, Math.PI * 2)
-        ctx.fill()
-      }
+    ctx.fillStyle = "white";
+    clouds.forEach(c => {
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 30, 0, Math.PI * 2);
+      ctx.arc(c.x + 30, c.y + 10, 30, 0, Math.PI * 2);
+      ctx.arc(c.x - 30, c.y + 10, 30, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (season === "summer") {
+      ctx.strokeStyle = "black";
+      birds.forEach(b => {
+        ctx.beginPath();
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(b.x + 15, b.y - 8);
+        ctx.lineTo(b.x + 30, b.y);
+        ctx.stroke();
+      });
     }
 
-    function drawFlowers() {
-      for (let i = 0; i < flowerCount; i++) {
-        let x = 50 + i * 40
-        let y = canvas.height * 0.65 + 20
-        let colors = ["pink", "yellow", "purple"]
-        ctx.beginPath()
-        ctx.fillStyle = colors[i % 3]
-        ctx.arc(x, y, 6, 0, Math.PI * 2)
-        ctx.fill()
-      }
+    if (season === "spring") {
+      ctx.fillStyle = "pink";
+      flowers.forEach(f => {
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
     }
 
-    function drawSnow() {
+    if (season === "autumn") {
+      ctx.fillStyle = "orange";
+      leaves.forEach(l => {
+        ctx.beginPath();
+        ctx.arc(l.x, l.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    if (season === "winter") {
+      ctx.fillStyle = "white";
       snowflakes.forEach(s => {
-        ctx.beginPath()
-        ctx.fillStyle = "white"
-        ctx.arc(s.x, s.y, 3, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+  }
 
-        s.y += s.speed
-        if (s.y > canvas.height) {
-          s.y = 0
-          s.x = Math.random() * canvas.width
-        }
-      })
+  function drawTree(x, y) {
+    ctx.fillStyle = "saddlebrown";
+    ctx.fillRect(x - 10, y - 40, 20, 40);
+
+    if (season === "spring") ctx.fillStyle = "pink";
+    if (season === "summer") ctx.fillStyle = "darkgreen";
+    if (season === "autumn") ctx.fillStyle = "orange";
+    if (season === "winter") ctx.fillStyle = "lightgray";
+
+    ctx.beginPath();
+    ctx.moveTo(x, y - 80);
+    ctx.lineTo(x - 30, y - 40);
+    ctx.lineTo(x + 30, y - 40);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawForest() {
+    trees.forEach(t => drawTree(t.x, t.y));
+  }
+
+  function animate() {
+    drawBackground();
+    drawForest();
+
+    clouds.forEach(c => {
+      c.x += 0.3;
+      if (c.x > canvas.width) c.x = -60;
+    });
+
+    birds.forEach(b => {
+      b.x += 0.5;
+      if (b.x > canvas.width) b.x = -50;
+    });
+
+    if (season === "winter") {
+      snowflakes.forEach(s => {
+        s.y += 1;
+        if (s.y > canvas.height) s.y = 0;
+      });
     }
 
-    function drawLeaves() {
-      for (let i = 0; i < leafDrops; i++) {
-        let x = (i * 30) % canvas.width
-        let y = (i * 20) % canvas.height
+    if (season === "autumn") {
+      leaves.forEach(l => {
+        l.y += 0.6;
+        if (l.y > canvas.height) l.y = 0;
+      });
+    }
 
-        ctx.beginPath()
-        ctx.fillStyle = "orange"
-        ctx.arc(x, y, 5, 0, Math.PI * 2)
-        ctx.fill()
+    requestAnimationFrame(animate);
+  }
+
+  setupScene();
+  updateSeason();
+  animate();
+
+  let a, b;
+
+  function newQ() {
+    let max = 10 + level * 5;
+    a = Math.floor(Math.random() * max) + 1;
+    b = Math.floor(Math.random() * max) + 1;
+    document.getElementById("question").innerText = a + " + " + b + " = ?";
+  }
+
+  function updateUI() {
+    document.getElementById("scoreBox").innerText = "Score " + score;
+    document.getElementById("levelBox").innerText = "Level " + level;
+  }
+
+  function check() {
+    const user = Number(document.getElementById("answer").value);
+
+    if (user === a + b) {
+      score++;
+      document.getElementById("result").innerText = "Correct";
+
+      trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
+
+      if (score % 5 === 0) {
+        level++;
+        updateSeason();
+        setupScene();
       }
+
+      if (score === 10) document.getElementById("medal").innerText = "Bronze Medal";
+      if (score === 20) document.getElementById("medal").innerText = "Silver Medal";
+      if (score === 30) document.getElementById("medal").innerText = "Gold Medal";
+
+    } else {
+      document.getElementById("result").innerText = "Try again";
     }
 
-    function drawAll() {
-      drawSky()
-      drawMountains()
-      drawGrass()
-      drawSunAndCloud()
-      drawTrees()
+    document.getElementById("answer").value = "";
+    updateUI();
+    newQ();
+  }
 
-      if (season === "winter") drawSnow()
-      if (season === "spring") drawFlowers()
-      if (season === "autumn") drawLeaves()
+  function startTimer() {
+    setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        document.getElementById("timeBox").innerText = "Time " + timeLeft;
+      } else {
+        document.getElementById("result").innerText = "Time Over";
+      }
+    }, 1000);
+  }
 
-      requestAnimationFrame(drawAll)
-    }
-
-    setSeason()
-    newQuestion()
-    drawAll()
-  </script>
+  updateUI();
+  newQ();
+  startTimer();
+</script>
 
 </body>
 </html>
