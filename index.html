@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Speed Math</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,7 @@
     #question {
       font-size: 26px;
       margin: 10px;
+      font-weight: bold;
     }
 
     input {
@@ -40,14 +41,11 @@
       color: white;
     }
 
-    button:active {
-      transform: scale(0.98);
-    }
-
     #result {
       font-size: 20px;
       margin-top: 10px;
       min-height: 24px;
+      font-weight: bold;
     }
 
     canvas {
@@ -76,7 +74,7 @@
   <div id="question"></div>
 
   <div>
-    <input id="answer" type="number" inputmode="numeric">
+    <input id="answer" type="number" inputmode="numeric" placeholder="Answer">
     <br><br>
     <button onclick="check()">Submit</button>
   </div>
@@ -86,7 +84,9 @@
   <canvas id="gameCanvas" width="700" height="400"></canvas>
 
   <script>
-    let a, b, score = 0
+    let a = 0
+    let b = 0
+    let score = 0
     let level = 1
     let season = "winter"
     let operator = "+"
@@ -104,6 +104,7 @@
       if (level === 2) season = "spring"
       if (level === 3) season = "summer"
       if (level === 4) season = "autumn"
+
       setOperator()
       drawScene()
       newQuestion()
@@ -112,8 +113,8 @@
     function setOperator() {
       if (season === "winter") operator = "+"
       if (season === "spring") operator = "-"
-      if (season === "summer") operator = "×"
-      if (season === "autumn") operator = "÷"
+      if (season === "summer") operator = "*"
+      if (season === "autumn") operator = "/"
     }
 
     function drawScene() {
@@ -125,7 +126,7 @@
         ctx.fillRect(0, 280, 700, 120)
 
         for (let i = 0; i < treeCount; i++) {
-          ctx.fillStyle = "#654321"
+          ctx.fillStyle = "#7b4a12"
           ctx.fillRect(80 + i * 90, 210, 24, 90)
 
           ctx.beginPath()
@@ -136,13 +137,13 @@
       }
 
       if (season === "spring") {
-        canvas.style.background = "#c8f7ff"
-        ctx.fillStyle = "#55cc66"
+        canvas.style.background = "#ccf5ff"
+        ctx.fillStyle = "#5fd35f"
         ctx.fillRect(0, 280, 700, 120)
 
         for (let i = 0; i < flowerCount; i++) {
           ctx.beginPath()
-          ctx.fillStyle = "pink"
+          ctx.fillStyle = ["pink", "yellow", "purple"][i % 3]
           ctx.arc(40 + i * 35, 320, 8, 0, Math.PI * 2)
           ctx.fill()
         }
@@ -169,42 +170,53 @@
 
         leaves.forEach((leaf, i) => {
           ctx.beginPath()
-          ctx.fillStyle = "orange"
+          ctx.fillStyle = ["orange", "red", "brown"][i % 3]
           ctx.arc(leaf.x, leaf.y, 6, 0, Math.PI * 2)
           ctx.fill()
           leaf.y += 2
-          if (leaf.y > 340) leaves.splice(i, 1)
+
+          if (leaf.y > 340) {
+            leaves.splice(i, 1)
+          }
         })
       }
     }
 
     function newQuestion() {
       let max = 10 + level * 5
+
       a = Math.floor(Math.random() * max) + 1
       b = Math.floor(Math.random() * max) + 1
 
       if (operator === "-" && b > a) {
-        let temp = a
+        let t = a
         a = b
-        b = temp
+        b = t
       }
 
-      if (operator === "÷") {
+      if (operator === "/" && b !== 0) {
         a = b * (Math.floor(Math.random() * 10) + 1)
       }
 
       document.getElementById("question").innerText =
-        a + " " + operator + " " + b + " = ?"
+        a + " " + symbol() + " " + b + " = ?"
+    }
+
+    function symbol() {
+      if (operator === "+") return "+"
+      if (operator === "-") return "-"
+      if (operator === "*") return "×"
+      if (operator === "/") return "÷"
     }
 
     function check() {
-      const user = Number(document.getElementById("answer").value)
+      let user = Number(document.getElementById("answer").value)
+      let correct = 0
 
-      let correct
       if (operator === "+") correct = a + b
       if (operator === "-") correct = a - b
-      if (operator === "×") correct = a * b
-      if (operator === "÷") correct = a / b
+      if (operator === "*") correct = a * b
+      if (operator === "/") correct = a / b
 
       if (user === correct) {
         score++
@@ -212,13 +224,11 @@
         if (season === "winter") treeCount++
         if (season === "spring") flowerCount++
         if (season === "summer") cloudOffset += 20
-        if (season === "autumn") {
-          leaves.push({ x: Math.random() * 700, y: 0 })
-        }
+        if (season === "autumn") leaves.push({ x: Math.random() * 700, y: 0 })
 
-        document.getElementById("result").innerText = "Correct"
+        document.getElementById("result").innerText = "Great job!"
       } else {
-        document.getElementById("result").innerText = "Try again"
+        document.getElementById("result").innerText = "Try again!"
       }
 
       if (score % 5 === 0 && level < 4) {
@@ -227,6 +237,7 @@
       }
 
       document.getElementById("answer").value = ""
+
       drawScene()
       newQuestion()
     }
