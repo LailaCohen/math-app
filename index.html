@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Speed Math</title>
+  <title>Speed Math Seasons</title>
   <style>
     body {
       font-family: "Bookman Old Style";
@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background: lightblue;
+      background: #b3e5ff;
     }
 
     #gameCanvas {
@@ -28,27 +28,29 @@
     }
 
     input {
-      width: 50px;
+      width: 60px;
+      font-size: 18px;
       text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <canvas id="gameCanvas"></canvas>
+<canvas id="gameCanvas"></canvas>
 
-  <div id="ui">
-    <h1>Speed Math</h1>
-    <p id="levelBox">Level: 1</p>
-    <p id="scoreBox">Score: 0</p>
-    <p id="timeBox">Time: 30</p>
+<div id="ui">
+  <h1>Speed Math</h1>
+  <p id="seasonBox">Season Spring</p>
+  <p id="levelBox">Level 1</p>
+  <p id="scoreBox">Score 0</p>
+  <p id="timeBox">Time 30</p>
 
-    <div id="question"></div>
-    <input id="answer" type="number">
-    <button onclick="check()">Submit</button>
-    <p id="result"></p>
-    <p id="medal"></p>
-  </div>
+  <div id="question"></div>
+  <input id="answer" type="number">
+  <button onclick="check()">Submit</button>
+  <p id="result"></p>
+  <p id="medal"></p>
+</div>
 
 <script>
   const canvas = document.getElementById("gameCanvas");
@@ -57,56 +59,96 @@
   function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    drawScene();
   }
-
   window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
 
   let trees = [];
   let clouds = [];
   let birds = [];
+  let flowers = [];
+  let snowflakes = [];
+  let leaves = [];
   let mountains = [];
 
+  let score = 0;
+  let level = 1;
+  let timeLeft = 30;
+  let season = "spring";
+
+  function updateSeason() {
+    if (level % 4 === 1) season = "spring";
+    if (level % 4 === 2) season = "summer";
+    if (level % 4 === 3) season = "autumn";
+    if (level % 4 === 0) season = "winter";
+    document.getElementById("seasonBox").innerText = "Season " + season;
+  }
+
   function setupScene() {
+    trees = [];
+    clouds = [];
+    birds = [];
+    flowers = [];
+    snowflakes = [];
+    leaves = [];
+
     for (let i = 0; i < 25; i++) {
-      trees.push({
-        x: Math.random() * window.innerWidth,
-        y: window.innerHeight - 100 + Math.random() * 50
-      });
-    }
-
-    for (let i = 0; i < 5; i++) {
-      clouds.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * 200
-      });
-    }
-
-    for (let i = 0; i < 5; i++) {
-      birds.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * 200
-      });
+      trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
     }
 
     for (let i = 0; i < 6; i++) {
+      clouds.push({x: Math.random() * canvas.width, y: Math.random() * 200});
+    }
+
+    for (let i = 0; i < 20; i++) {
+      flowers.push({x: Math.random() * canvas.width, y: canvas.height - 80});
+    }
+
+    for (let i = 0; i < 30; i++) {
+      snowflakes.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height});
+    }
+
+    for (let i = 0; i < 20; i++) {
+      leaves.push({x: Math.random() * canvas.width, y: Math.random() * 200});
+    }
+
+    for (let i = 0; i < 5; i++) {
       mountains.push({
-        x: i * 200,
-        y: window.innerHeight - 100,
-        width: 300,
+        x: i * 300,
+        y: canvas.height - 100,
+        width: 400,
         height: 200
       });
     }
   }
 
   function drawBackground() {
-    ctx.fillStyle = "lightblue";
+    if (season === "spring") ctx.fillStyle = "#cceeff";
+    if (season === "summer") ctx.fillStyle = "#87CEEB";
+    if (season === "autumn") ctx.fillStyle = "#FFD39B";
+    if (season === "winter") ctx.fillStyle = "#eef6ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "yellow";
-    ctx.beginPath();
-    ctx.arc(canvas.width - 100, 100, 50, 0, Math.PI * 2);
-    ctx.fill();
+    if (season === "summer" || season === "spring") {
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.arc(canvas.width - 80, 80, 50, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "#8B4513";
+    mountains.forEach(m => {
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x + m.width / 2, m.y - m.height);
+      ctx.lineTo(m.x + m.width, m.y);
+      ctx.closePath();
+      ctx.fill();
+    });
+
+    if (season === "winter") ctx.fillStyle = "white";
+    else ctx.fillStyle = "#4CAF50";
+    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
 
     ctx.fillStyle = "white";
     clouds.forEach(c => {
@@ -117,35 +159,54 @@
       ctx.fill();
     });
 
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    birds.forEach(b => {
-      ctx.beginPath();
-      ctx.moveTo(b.x, b.y);
-      ctx.lineTo(b.x + 10, b.y - 5);
-      ctx.lineTo(b.x + 20, b.y);
-      ctx.stroke();
-    });
+    if (season === "summer") {
+      ctx.strokeStyle = "black";
+      birds.forEach(b => {
+        ctx.beginPath();
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(b.x + 15, b.y - 8);
+        ctx.lineTo(b.x + 30, b.y);
+        ctx.stroke();
+      });
+    }
 
-    ctx.fillStyle = "sienna";
-    mountains.forEach(m => {
-      ctx.beginPath();
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(m.x + m.width / 2, m.y - m.height);
-      ctx.lineTo(m.x + m.width, m.y);
-      ctx.closePath();
-      ctx.fill();
-    });
+    if (season === "spring") {
+      ctx.fillStyle = "pink";
+      flowers.forEach(f => {
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
 
-    ctx.fillStyle = "green";
-    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+    if (season === "autumn") {
+      ctx.fillStyle = "orange";
+      leaves.forEach(l => {
+        ctx.beginPath();
+        ctx.arc(l.x, l.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    if (season === "winter") {
+      ctx.fillStyle = "white";
+      snowflakes.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
   }
 
   function drawTree(x, y) {
     ctx.fillStyle = "saddlebrown";
     ctx.fillRect(x - 10, y - 40, 20, 40);
 
-    ctx.fillStyle = "darkgreen";
+    if (season === "spring") ctx.fillStyle = "pink";
+    if (season === "summer") ctx.fillStyle = "darkgreen";
+    if (season === "autumn") ctx.fillStyle = "orange";
+    if (season === "winter") ctx.fillStyle = "lightgray";
+
     ctx.beginPath();
     ctx.moveTo(x, y - 80);
     ctx.lineTo(x - 30, y - 40);
@@ -158,35 +219,42 @@
     trees.forEach(t => drawTree(t.x, t.y));
   }
 
-  function drawScene() {
+  function animate() {
     drawBackground();
     drawForest();
-  }
-
-  function animate() {
-    drawScene();
 
     clouds.forEach(c => {
       c.x += 0.3;
-      if (c.x > canvas.width) c.x = -50;
+      if (c.x > canvas.width) c.x = -60;
     });
 
     birds.forEach(b => {
-      b.x += 0.6;
+      b.x += 0.5;
       if (b.x > canvas.width) b.x = -50;
     });
+
+    if (season === "winter") {
+      snowflakes.forEach(s => {
+        s.y += 1;
+        if (s.y > canvas.height) s.y = 0;
+      });
+    }
+
+    if (season === "autumn") {
+      leaves.forEach(l => {
+        l.y += 0.6;
+        if (l.y > canvas.height) l.y = 0;
+      });
+    }
 
     requestAnimationFrame(animate);
   }
 
-  resizeCanvas();
   setupScene();
+  updateSeason();
   animate();
 
   let a, b;
-  let score = 0;
-  let level = 1;
-  let timeLeft = 30;
 
   function newQ() {
     let max = 10 + level * 5;
@@ -196,8 +264,8 @@
   }
 
   function updateUI() {
-    document.getElementById("scoreBox").innerText = "Score: " + score;
-    document.getElementById("levelBox").innerText = "Level: " + level;
+    document.getElementById("scoreBox").innerText = "Score " + score;
+    document.getElementById("levelBox").innerText = "Level " + level;
   }
 
   function check() {
@@ -205,16 +273,14 @@
 
     if (user === a + b) {
       score++;
-      document.getElementById("result").innerText = "Correct!";
+      document.getElementById("result").innerText = "Correct";
 
-      trees.push({
-        x: Math.random() * window.innerWidth,
-        y: window.innerHeight - 100 + Math.random() * 50
-      });
+      trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
 
       if (score % 5 === 0) {
         level++;
-        document.getElementById("result").innerText = "Level Up!";
+        updateSeason();
+        setupScene();
       }
 
       if (score === 10) document.getElementById("medal").innerText = "Bronze Medal";
@@ -222,7 +288,7 @@
       if (score === 30) document.getElementById("medal").innerText = "Gold Medal";
 
     } else {
-      document.getElementById("result").innerText = "Try again!";
+      document.getElementById("result").innerText = "Try again";
     }
 
     document.getElementById("answer").value = "";
@@ -234,9 +300,9 @@
     setInterval(() => {
       if (timeLeft > 0) {
         timeLeft--;
-        document.getElementById("timeBox").innerText = "Time: " + timeLeft;
+        document.getElementById("timeBox").innerText = "Time " + timeLeft;
       } else {
-        document.getElementById("result").innerText = "Time Over!";
+        document.getElementById("result").innerText = "Time Over";
       }
     }, 1000);
   }
