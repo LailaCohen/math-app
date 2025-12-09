@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Speed Math</title>
+  <title>Speed Math - Full Page Winter Scenes</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       font-family: "Bookman Old Style";
+      background: #D3DCE6;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: row;
+      overflow: hidden;
+      width: 100vw;
       height: 100vh;
-      background: #D3DCE6; /* אפור-תכלת */
     }
 
-    #gameContainer {
+    .gameContainer {
       position: relative;
-      width: 800px;
-      height: 600px;
+      flex: 1; /* כל סצנה תתפוס את כל החלל במקביל */
+      height: 100%;
+      overflow: hidden;
     }
 
-    #gameCanvas {
+    .gameCanvas {
       position: absolute;
       top: 0;
       left: 0;
@@ -30,7 +31,7 @@
       z-index: 0;
     }
 
-    #gameUI {
+    .gameUI {
       position: relative;
       z-index: 2;
       width: 100%;
@@ -51,7 +52,7 @@
     }
 
     #question {
-      font-size: 2.5em;
+      font-size: 2em;
       margin-bottom: 20px;
     }
 
@@ -68,185 +69,178 @@
     }
 
     #result {
-      font-size: 2em;
+      font-size: 1.5em;
       margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <div id="gameContainer">
-    <canvas id="gameCanvas"></canvas>
-    <div id="gameUI">
+  <!-- יוצרים שתי סצנות לדוגמה, אפשר להוסיף עוד -->
+  <div class="gameContainer">
+    <canvas class="gameCanvas"></canvas>
+    <div class="gameUI">
       <h1>Speed Math</h1>
-      <div id="question"></div>
-      <input id="answer" type="number">
-      <button onclick="check()">Submit</button>
-      <p id="result"></p>
+      <div id="question1"></div>
+      <input id="answer1" type="number">
+      <button onclick="check(1)">Submit</button>
+      <p id="result1"></p>
+    </div>
+  </div>
+
+  <div class="gameContainer">
+    <canvas class="gameCanvas"></canvas>
+    <div class="gameUI">
+      <h1>Speed Math</h1>
+      <div id="question2"></div>
+      <input id="answer2" type="number">
+      <button onclick="check(2)">Submit</button>
+      <p id="result2"></p>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const container = document.getElementById('gameContainer');
+    function createScene(containerIndex) {
+      const container = document.getElementsByClassName('gameContainer')[containerIndex];
+      const canvas = container.querySelector('.gameCanvas');
+      const ctx = canvas.getContext('2d');
 
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
+      canvas.width = container.offsetWidth;
+      canvas.height = container.offsetHeight;
 
-    // שלג
-    let snowflakes = [];
-    for (let i = 0; i < 150; i++) {
-      snowflakes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2,
-        speed: Math.random() * 2 + 1
-      });
-    }
-
-    function drawSnow() {
-      snowflakes.forEach(f => {
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        f.y += f.speed;
-        if (f.y > canvas.height) f.y = 0;
-      });
-    }
-
-    function drawTree() {
-      const x = canvas.width/2;
-      const y = canvas.height - 150;
-
-      // גזע
-      ctx.fillStyle = "#4B3621";
-      ctx.fillRect(x - 20, y, 40, 150);
-
-      // עלים עם שלג
-      ctx.fillStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.arc(x, y - 30, 60, 0, Math.PI * 2);
-      ctx.arc(x - 40, y, 50, 0, Math.PI * 2);
-      ctx.arc(x + 40, y, 50, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawSwing() {
-      const x = canvas.width/2;
-      const y = canvas.height - 150;
-
-      // חבלים
-      ctx.strokeStyle = "#A0522D";
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(x - 30, y - 20);
-      ctx.lineTo(x - 30, y - 60);
-      ctx.moveTo(x + 30, y - 20);
-      ctx.lineTo(x + 30, y - 60);
-      ctx.stroke();
-
-      // מושב
-      ctx.fillStyle = "#8B4513";
-      ctx.fillRect(x - 35, y - 60, 70, 10);
-    }
-
-    function drawSnowman() {
-      const x = canvas.width/2;
-      const y = canvas.height - 60;
-
-      // גוף
-      ctx.fillStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(x, y - 35, 20, 0, Math.PI * 2);
-      ctx.fill();
-
-      // פנים
-      ctx.fillStyle = "#000000";
-      ctx.beginPath();
-      ctx.arc(x - 5, y - 38, 2, 0, Math.PI * 2);
-      ctx.arc(x + 5, y - 38, 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // אף גזר
-      ctx.fillStyle = "#FFA500";
-      ctx.beginPath();
-      ctx.moveTo(x, y - 35);
-      ctx.lineTo(x + 10, y - 33);
-      ctx.lineTo(x, y - 31);
-      ctx.fill();
-
-      // כובע
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(x - 12, y - 55, 24, 10);
-      ctx.fillRect(x - 8, y - 65, 16, 10);
-
-      // צעיף
-      ctx.fillStyle = "#FF0000";
-      ctx.fillRect(x - 15, y - 27, 30, 5);
-
-      // זרועות
-      ctx.strokeStyle = "#4B3621";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(x - 20, y - 40);
-      ctx.lineTo(x - 40, y - 50);
-      ctx.moveTo(x + 20, y - 40);
-      ctx.lineTo(x + 40, y - 50);
-      ctx.stroke();
-    }
-
-    function drawScene() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // רקע שמיים
-      ctx.fillStyle = "#D3DCE6";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // שלג מתחת
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
-
-      drawTree();
-      drawSwing();
-      drawSnowman();
-      drawSnow();
-    }
-
-    function animate() {
-      drawScene();
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    // ==========================
-    // משחק מתמטי
-    // ==========================
-    let a, b, score = 0;
-
-    function newQ() {
-      a = Math.floor(Math.random() * 20) + 1;
-      b = Math.floor(Math.random() * 20) + 1;
-      document.getElementById("question").innerText = a + " + " + b + " = ?";
-    }
-
-    function check() {
-      const user = Number(document.getElementById("answer").value);
-      if (user === a + b) {
-        document.getElementById("result").innerText = "Correct!";
-      } else {
-        document.getElementById("result").innerText = "Try again!";
+      // שלג
+      let snowflakes = [];
+      for (let i = 0; i < 150; i++) {
+        snowflakes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 4 + 2,
+          speed: Math.random() * 2 + 1
+        });
       }
-      document.getElementById("answer").value = "";
-      newQ();
+
+      function drawSnow() {
+        snowflakes.forEach(f => {
+          ctx.fillStyle = "white";
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          f.y += f.speed;
+          if (f.y > canvas.height) f.y = 0;
+        });
+      }
+
+      function drawTree() {
+        const x = canvas.width/2;
+        const y = canvas.height - 150;
+        ctx.fillStyle = "#4B3621";
+        ctx.fillRect(x - 20, y, 40, 150);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(x, y - 30, 60, 0, Math.PI * 2);
+        ctx.arc(x - 40, y, 50, 0, Math.PI * 2);
+        ctx.arc(x + 40, y, 50, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawSwing() {
+        const x = canvas.width/2;
+        const y = canvas.height - 150;
+        ctx.strokeStyle = "#A0522D";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x - 30, y - 20);
+        ctx.lineTo(x - 30, y - 60);
+        ctx.moveTo(x + 30, y - 20);
+        ctx.lineTo(x + 30, y - 60);
+        ctx.stroke();
+        ctx.fillStyle = "#8B4513";
+        ctx.fillRect(x - 35, y - 60, 70, 10);
+      }
+
+      function drawSnowman() {
+        const x = canvas.width/2;
+        const y = canvas.height - 60;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x, y - 35, 20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(x - 5, y - 38, 2, 0, Math.PI * 2);
+        ctx.arc(x + 5, y - 38, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#FFA500";
+        ctx.beginPath();
+        ctx.moveTo(x, y - 35);
+        ctx.lineTo(x + 10, y - 33);
+        ctx.lineTo(x, y - 31);
+        ctx.fill();
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(x - 12, y - 55, 24, 10);
+        ctx.fillRect(x - 8, y - 65, 16, 10);
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect(x - 15, y - 27, 30, 5);
+        ctx.strokeStyle = "#4B3621";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x - 20, y - 40);
+        ctx.lineTo(x - 40, y - 50);
+        ctx.moveTo(x + 20, y - 40);
+        ctx.lineTo(x + 40, y - 50);
+        ctx.stroke();
+      }
+
+      function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#D3DCE6";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+        drawTree();
+        drawSwing();
+        drawSnowman();
+        drawSnow();
+      }
+
+      function animate() {
+        drawScene();
+        requestAnimationFrame(animate);
+      }
+
+      animate();
     }
 
-    newQ();
+    // יוצרים את הסצנות
+    createScene(0);
+    createScene(1);
+
+    // ==========================
+    // משחק מתמטי לכל סצנה
+    // ==========================
+    function newQ(id) {
+      const a = Math.floor(Math.random() * 20) + 1;
+      const b = Math.floor(Math.random() * 20) + 1;
+      document.getElementById("question"+id).innerText = a + " + " + b + " = ?";
+      return {a,b};
+    }
+
+    let problems = {1:newQ(1), 2:newQ(2)};
+
+    function check(id) {
+      const input = document.getElementById("answer"+id);
+      const user = Number(input.value);
+      if (user === problems[id].a + problems[id].b) {
+        document.getElementById("result"+id).innerText = "Correct!";
+      } else {
+        document.getElementById("result"+id).innerText = "Try again!";
+      }
+      input.value = "";
+      problems[id] = newQ(id);
+    }
   </script>
 </body>
 </html>
