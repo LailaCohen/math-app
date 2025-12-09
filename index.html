@@ -1,280 +1,250 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Speed Math - Winter Forest</title>
+  <title>Speed Math</title>
   <style>
     body {
+      font-family: "Bookman Old Style";
+      text-align: center;
       margin: 0;
       padding: 0;
-      font-family: "Comic Sans";
-      background: #305CDE;
       overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #gameContainer {
-      position: relative;
-      width: 100%;
-      height: 100%;
+      background: lightblue;
     }
 
     #gameCanvas {
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
     }
 
-    #gameUI {
+    #ui {
       position: relative;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(255,255,255,0.7);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
-
-    h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
-    }
-
-    #question {
-      font-size: 2em;
-      margin-bottom: 20px;
+      z-index: 5;
+      padding-top: 20px;
     }
 
     input {
-      font-size: 2em;
-      width: 80px;
+      width: 50px;
       text-align: center;
-      margin-bottom: 20px;
-    }
-
-    button {
-      font-size: 1.5em;
-      padding: 10px 20px;
-    }
-
-    #result {
-      font-size: 1.5em;
-      margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <div id="gameContainer">
-    <canvas id="gameCanvas"></canvas>
-    <div id="gameUI">
-      <h1>Speed Math</h1>
-      <div id="question"></div>
-      <input id="answer" type="number">
-      <button onclick="check()">Submit</button>
-      <p id="result"></p>
-    </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="ui">
+    <h1>Speed Math</h1>
+    <p id="levelBox">Level: 1</p>
+    <p id="scoreBox">Score: 0</p>
+    <p id="timeBox">Time: 30</p>
+
+    <div id="question"></div>
+    <input id="answer" type="number">
+    <button onclick="check()">Submit</button>
+    <p id="result"></p>
+    <p id="medal"></p>
   </div>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const container = document.getElementById('gameContainer');
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
 
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    drawScene();
+  }
 
-    // שלג
-    let snowflakes = [];
-    for (let i = 0; i < 200; i++) {
-      snowflakes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2,
-        speed: Math.random() * 2 + 1
+  window.addEventListener("resize", resizeCanvas);
+
+  let trees = [];
+  let clouds = [];
+  let birds = [];
+  let mountains = [];
+
+  function setupScene() {
+    for (let i = 0; i < 25; i++) {
+      trees.push({
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight - 100 + Math.random() * 50
       });
     }
 
-    // עצים רנדומליים
-    let forest = [];
-    for (let i = 0; i < 15; i++) {
-      forest.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height - 100 - Math.random() * 50,
-        size: Math.random() * 0.8 + 0.6
+    for (let i = 0; i < 5; i++) {
+      clouds.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * 200
       });
     }
 
-    function drawSnow() {
-      snowflakes.forEach(f => {
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        f.y += f.speed;
-        if (f.y > canvas.height) f.y = 0;
+    for (let i = 0; i < 5; i++) {
+      birds.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * 200
       });
     }
 
-    function drawTree(x, y, size = 1) {
-      // גזע
-      ctx.fillStyle = "#4B3621";
-      ctx.fillRect(x - 20*size, y, 40*size, 80*size);
+    for (let i = 0; i < 6; i++) {
+      mountains.push({
+        x: i * 200,
+        y: window.innerHeight - 100,
+        width: 300,
+        height: 200
+      });
+    }
+  }
 
-      // עלים עם שלג
-      ctx.fillStyle = "#FFFFFF";
+  function drawBackground() {
+    ctx.fillStyle = "lightblue";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(canvas.width - 100, 100, 50, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "white";
+    clouds.forEach(c => {
       ctx.beginPath();
-      ctx.arc(x, y - 30*size, 60*size, 0, Math.PI * 2);
-      ctx.arc(x - 40*size, y, 50*size, 0, Math.PI * 2);
-      ctx.arc(x + 40*size, y, 50*size, 0, Math.PI * 2);
+      ctx.arc(c.x, c.y, 30, 0, Math.PI * 2);
+      ctx.arc(c.x + 30, c.y + 10, 30, 0, Math.PI * 2);
+      ctx.arc(c.x - 30, c.y + 10, 30, 0, Math.PI * 2);
       ctx.fill();
-    }
+    });
 
-    function drawForest() {
-      forest.forEach(tree => drawTree(tree.x, tree.y, tree.size));
-    }
-
-    function drawMainTree() {
-      const x = canvas.width/2;
-      const y = canvas.height - 150;
-      // גזע
-      ctx.fillStyle = "#4B3621";
-      ctx.fillRect(x - 20, y, 40, 150);
-
-      // עלים עם שלג
-      ctx.fillStyle = "#FFFFFF";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    birds.forEach(b => {
       ctx.beginPath();
-      ctx.arc(x, y - 30, 60, 0, Math.PI * 2);
-      ctx.arc(x - 40, y, 50, 0, Math.PI * 2);
-      ctx.arc(x + 40, y, 50, 0, Math.PI * 2);
-      ctx.fill();
-
-      return {x, y};
-    }
-
-    function drawSwing(mainTreePos) {
-      const x = mainTreePos.x;
-      const y = mainTreePos.y;
-
-      ctx.strokeStyle = "#A0522D";
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(x - 30, y - 20);
-      ctx.lineTo(x - 30, y - 60);
-      ctx.moveTo(x + 30, y - 20);
-      ctx.lineTo(x + 30, y - 60);
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(b.x + 10, b.y - 5);
+      ctx.lineTo(b.x + 20, b.y);
       ctx.stroke();
+    });
 
-      ctx.fillStyle = "#8B4513";
-      ctx.fillRect(x - 35, y - 60, 70, 10);
-    }
-
-    function drawSnowman() {
-      const x = canvas.width*0.8;
-      const y = canvas.height - 60;
-
-      ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "sienna";
+    mountains.forEach(m => {
       ctx.beginPath();
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x + m.width / 2, m.y - m.height);
+      ctx.lineTo(m.x + m.width, m.y);
+      ctx.closePath();
       ctx.fill();
-      ctx.beginPath();
-      ctx.arc(x, y - 35, 20, 0, Math.PI * 2);
-      ctx.fill();
+    });
 
-      // פנים
-      ctx.fillStyle = "#000000";
-      ctx.beginPath();
-      ctx.arc(x - 5, y - 38, 2, 0, Math.PI * 2);
-      ctx.arc(x + 5, y - 38, 2, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.fillStyle = "green";
+    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+  }
 
-      // אף
-      ctx.fillStyle = "#FFA500";
-      ctx.beginPath();
-      ctx.moveTo(x, y - 35);
-      ctx.lineTo(x + 10, y - 33);
-      ctx.lineTo(x, y - 31);
-      ctx.fill();
+  function drawTree(x, y) {
+    ctx.fillStyle = "saddlebrown";
+    ctx.fillRect(x - 10, y - 40, 20, 40);
 
-      // כובע
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(x - 12, y - 55, 24, 10);
-      ctx.fillRect(x - 8, y - 65, 16, 10);
+    ctx.fillStyle = "darkgreen";
+    ctx.beginPath();
+    ctx.moveTo(x, y - 80);
+    ctx.lineTo(x - 30, y - 40);
+    ctx.lineTo(x + 30, y - 40);
+    ctx.closePath();
+    ctx.fill();
+  }
 
-      // צעיף
-      ctx.fillStyle = "#FF0000";
-      ctx.fillRect(x - 15, y - 27, 30, 5);
+  function drawForest() {
+    trees.forEach(t => drawTree(t.x, t.y));
+  }
 
-      // זרועות
-      ctx.strokeStyle = "#4B3621";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(x - 20, y - 40);
-      ctx.lineTo(x - 40, y - 50);
-      ctx.moveTo(x + 20, y - 40);
-      ctx.lineTo(x + 40, y - 50);
-      ctx.stroke();
-    }
+  function drawScene() {
+    drawBackground();
+    drawForest();
+  }
 
-    function drawScene() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function animate() {
+    drawScene();
 
-      // רקע שמיים
-      ctx.fillStyle = "#D3DCE6";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    clouds.forEach(c => {
+      c.x += 0.3;
+      if (c.x > canvas.width) c.x = -50;
+    });
 
-      // שלג קרקע
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+    birds.forEach(b => {
+      b.x += 0.6;
+      if (b.x > canvas.width) b.x = -50;
+    });
 
-      drawForest();
-      const mainTreePos = drawMainTree();
-      drawSwing(mainTreePos);
-      drawSnowman();
-      drawSnow();
-    }
+    requestAnimationFrame(animate);
+  }
 
-    function animate() {
-      drawScene();
-      requestAnimationFrame(animate);
-    }
+  resizeCanvas();
+  setupScene();
+  animate();
 
-    animate();
+  let a, b;
+  let score = 0;
+  let level = 1;
+  let timeLeft = 30;
 
-    // ==========================
-    // משחק מתמטי
-    // ==========================
-    let a, b;
+  function newQ() {
+    let max = 10 + level * 5;
+    a = Math.floor(Math.random() * max) + 1;
+    b = Math.floor(Math.random() * max) + 1;
+    document.getElementById("question").innerText = a + " + " + b + " = ?";
+  }
 
-    function newQ() {
-      a = Math.floor(Math.random() * 20) + 1;
-      b = Math.floor(Math.random() * 20) + 1;
-      document.getElementById("question").innerText = a + " + " + b + " = ?";
-    }
+  function updateUI() {
+    document.getElementById("scoreBox").innerText = "Score: " + score;
+    document.getElementById("levelBox").innerText = "Level: " + level;
+  }
 
-    function check() {
-      const user = Number(document.getElementById("answer").value);
-      if (user === a + b) {
-        document.getElementById("result").innerText = "look at you, you have a brain after all!";
-      } else {
-        document.getElementById("result").innerText = "you are a tree forever hhhahhhhhhahaha!";
+  function check() {
+    const user = Number(document.getElementById("answer").value);
+
+    if (user === a + b) {
+      score++;
+      document.getElementById("result").innerText = "Correct!";
+
+      trees.push({
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight - 100 + Math.random() * 50
+      });
+
+      if (score % 5 === 0) {
+        level++;
+        document.getElementById("result").innerText = "Level Up!";
       }
-      document.getElementById("answer").value = "";
-      newQ();
+
+      if (score === 10) document.getElementById("medal").innerText = "Bronze Medal";
+      if (score === 20) document.getElementById("medal").innerText = "Silver Medal";
+      if (score === 30) document.getElementById("medal").innerText = "Gold Medal";
+
+    } else {
+      document.getElementById("result").innerText = "Try again!";
     }
 
+    document.getElementById("answer").value = "";
+    updateUI();
     newQ();
-  </script>
+  }
+
+  function startTimer() {
+    setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        document.getElementById("timeBox").innerText = "Time: " + timeLeft;
+      } else {
+        document.getElementById("result").innerText = "Time Over!";
+      }
+    }, 1000);
+  }
+
+  updateUI();
+  newQ();
+  startTimer();
+</script>
+
 </body>
 </html>
