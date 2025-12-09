@@ -5,18 +5,41 @@
   <style>
     body {
       font-family: "Bookman Old Style";
-      text-align: center;
       margin: 0;
       padding: 0;
       overflow: hidden;
-    }
-    #gameCanvas {
-      display: block;
-      margin: 0 auto;
-      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      background: lightblue;
+      background: #87CEEB; /* שמיים כחולים חורפיים */
     }
+
+    #gameContainer {
+      position: relative;
+      width: 600px;
+      text-align: center;
+      z-index: 1;
+    }
+
+    #gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #gameUI {
+      position: relative;
+      z-index: 2;
+      background: rgba(255,255,255,0.8);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
     input {
       width: 50px;
       text-align: center;
@@ -24,115 +47,106 @@
   </style>
 </head>
 <body>
-  <h1>Speed Math</h1>
-  <div id="question"></div>
-  <input id="answer" type="number">
-  <button onclick="check()">Submit</button>
-  <p id="result"></p>
-
-  <canvas id="gameCanvas"></canvas>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameUI">
+      <h1>Speed Math</h1>
+      <div id="question"></div>
+      <input id="answer" type="number">
+      <button onclick="check()">Submit</button>
+      <p id="result"></p>
+    </div>
+  </div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const container = document.getElementById('gameContainer');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = container.offsetWidth;
+    canvas.height = 400;
 
     // עננים וציפורים
     let clouds = [
-      {x: 100, y: 80},
-      {x: 400, y: 120},
-      {x: 700, y: 60}
-    ];
-    let birds = [
-      {x: 200, y: 150},
-      {x: 600, y: 180}
+      {x: 50, y: 50},
+      {x: 200, y: 80},
+      {x: 350, y: 40}
     ];
 
     function drawBackground() {
       const w = canvas.width;
       const h = canvas.height;
 
-      // שמיים
-      ctx.fillStyle = "#87CEEB"; // תכלת
+      // שמיים חורפיים בהירים
+      ctx.fillStyle = "#B0E0E6"; 
       ctx.fillRect(0, 0, w, h);
 
-      // שמש
-      ctx.fillStyle = "yellow";
+      // שמש חלשה בחורף
+      ctx.fillStyle = "#FFFF99";
       ctx.beginPath();
-      ctx.arc(w - 100, 100, 50, 0, Math.PI * 2);
+      ctx.arc(w - 80, 80, 30, 0, Math.PI * 2);
       ctx.fill();
 
-      // הרים
-      ctx.fillStyle = "#556B2F"; // ירוק כהה
+      // הרים קטנים ועדינים
+      ctx.fillStyle = "#A9A9A9"; // אפור חורפי
       ctx.beginPath();
-      ctx.moveTo(0, h - 200);
-      ctx.lineTo(150, h - 400);
-      ctx.lineTo(300, h - 200);
-      ctx.lineTo(450, h - 450);
-      ctx.lineTo(600, h - 200);
-      ctx.lineTo(750, h - 350);
-      ctx.lineTo(w, h - 200);
+      ctx.moveTo(0, h - 80);
+      ctx.lineTo(100, h - 200);
+      ctx.lineTo(200, h - 80);
+      ctx.lineTo(300, h - 180);
+      ctx.lineTo(400, h - 80);
+      ctx.lineTo(500, h - 150);
+      ctx.lineTo(600, h - 80);
+      ctx.lineTo(w, h - 80);
       ctx.lineTo(w, h);
       ctx.lineTo(0, h);
       ctx.closePath();
       ctx.fill();
 
-      // דשא
-      ctx.fillStyle = "#228B22"; // ירוק דשא
-      ctx.fillRect(0, h - 100, w, 100);
+      // דשא עם שלג קל
+      ctx.fillStyle = "#F0F8FF"; // לבן כחול
+      ctx.fillRect(0, h - 80, w, 80);
 
-      // עננים
+      // עננים חורפיים
       ctx.fillStyle = "white";
       clouds.forEach(cloud => {
         ctx.beginPath();
-        ctx.arc(cloud.x, cloud.y, 30, 0, Math.PI * 2);
-        ctx.arc(cloud.x + 40, cloud.y + 10, 30, 0, Math.PI * 2);
-        ctx.arc(cloud.x - 40, cloud.y + 10, 30, 0, Math.PI * 2);
+        ctx.arc(cloud.x, cloud.y, 20, 0, Math.PI * 2);
+        ctx.arc(cloud.x + 30, cloud.y + 10, 20, 0, Math.PI * 2);
+        ctx.arc(cloud.x - 30, cloud.y + 10, 20, 0, Math.PI * 2);
         ctx.fill();
-      });
-
-      // ציפורים
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 2;
-      birds.forEach(bird => {
-        ctx.beginPath();
-        ctx.moveTo(bird.x, bird.y);
-        ctx.lineTo(bird.x + 15, bird.y - 10);
-        ctx.lineTo(bird.x + 30, bird.y);
-        ctx.stroke();
       });
     }
 
     function drawTree(x, y, size = 1) {
-      // גזע
-      ctx.fillStyle = "#8B4513"; // חום
-      ctx.fillRect(x - 10 * size, y - 50 * size, 20 * size, 50 * size);
+      // גזע דק
+      ctx.fillStyle = "#8B4513";
+      ctx.fillRect(x - 5 * size, y - 40 * size, 10 * size, 40 * size);
 
-      // עלים
-      ctx.fillStyle = "#006400"; // ירוק כהה
+      // עלים בצורת משולש דק
+      ctx.fillStyle = "#006400";
       ctx.beginPath();
-      ctx.moveTo(x, y - 100 * size);
-      ctx.lineTo(x - 50 * size, y - 50 * size);
-      ctx.lineTo(x + 50 * size, y - 50 * size);
+      ctx.moveTo(x, y - 80 * size);
+      ctx.lineTo(x - 25 * size, y - 40 * size);
+      ctx.lineTo(x + 25 * size, y - 40 * size);
       ctx.closePath();
       ctx.fill();
 
-      // שכבה שניה של עלים
+      // שכבה שניה קטנה יותר
       ctx.beginPath();
-      ctx.moveTo(x, y - 120 * size);
-      ctx.lineTo(x - 40 * size, y - 70 * size);
-      ctx.lineTo(x + 40 * size, y - 70 * size);
+      ctx.moveTo(x, y - 95 * size);
+      ctx.lineTo(x - 20 * size, y - 55 * size);
+      ctx.lineTo(x + 20 * size, y - 55 * size);
       ctx.closePath();
       ctx.fill();
     }
 
     function drawForest() {
-      drawTree(200, canvas.height - 100, 1.2);
-      drawTree(400, canvas.height - 120, 1.5);
-      drawTree(600, canvas.height - 100, 1);
-      drawTree(800, canvas.height - 110, 1.3);
+      drawTree(100, canvas.height - 80, 1);
+      drawTree(200, canvas.height - 90, 0.8);
+      drawTree(300, canvas.height - 85, 1.2);
+      drawTree(400, canvas.height - 90, 1);
+      drawTree(500, canvas.height - 80, 0.9);
     }
 
     function drawScene() {
@@ -158,8 +172,8 @@
       if (user === a + b) {
         document.getElementById("result").innerText = "Correct!";
         score++;
-        // הוספת עץ קטן נוסף במקום אקראי
-        drawTree(Math.random() * (canvas.width - 100) + 50, canvas.height - 100, 0.8);
+        // הוספת עץ קטן נוסף
+        drawTree(Math.random() * (canvas.width - 50) + 25, canvas.height - 80, 0.7);
       } else {
         document.getElementById("result").innerText = "Try again!";
       }
