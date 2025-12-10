@@ -1,336 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="he">
 <head>
-  <title>Speed Math Seasons</title>
+  <meta charset="UTF-8">
+  <title>Speed Math Trainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
-      font-family: "Bookman Old Style";
-      text-align: center;
+      font-family: Bookman Old Style;
+      background: #f2f9ff;
       margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: #b3e5ff;
+      text-align: center;
+      padding-top: 30px;
     }
 
-    #gameCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
+    .card {
+      background: white;
+      width: 92%;
+      max-width: 360px;
+      margin: auto;
+      border-radius: 22px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      padding: 24px;
+      animation: pop 0.6s ease;
     }
 
-    #ui {
-      position: relative;
-      z-index: 5;
-      padding-top: 10px;
-      background: rgba(255,255,255,0.7);
+    @keyframes pop {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    h1 {
-      font-size: 24px;
-      margin: 5px;
-    }
-
-    p {
-      margin: 4px;
-      font-size: 16px;
+    input, select {
+      font-size: 18px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #ccc;
+      margin: 8px 0;
+      width: 100%;
+      text-align: center;
     }
 
     #question {
-      font-size: 24px;
-      margin: 10px;
+      font-size: 32px;
       font-weight: bold;
+      margin: 20px 0;
     }
 
-    input {
-      width: 120px;
-      font-size: 22px;
-      text-align: center;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
+    #liveTimer {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    #progressBar {
+      width: 100%;
+      height: 12px;
+      background: #e0e0e0;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    #bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #67e8f9, #5eead4);
+      transition: width 0.3s ease;
     }
 
     button {
-      font-size: 20px;
-      padding: 12px 20px;
-      border-radius: 10px;
+      font-size: 18px;
+      padding: 14px;
+      width: 100%;
+      border-radius: 16px;
       border: none;
-      margin-top: 8px;
-      background: #4caf50;
+      background: #5edc7a;
       color: white;
+      margin-top: 12px;
     }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 20px; }
-      #question { font-size: 20px; }
-      input { width: 100px; }
-      button { font-size: 18px; }
+    canvas {
+      width: 100%;
+      height: 120px;
+      margin-top: 10px;
+    }
+
+    .sub {
+      font-size: 14px;
+      color: #666;
+      margin-top: 8px;
     }
   </style>
 </head>
 
 <body>
 
-<canvas id="gameCanvas"></canvas>
+  <div class="card" id="setupCard">
+    <h2>Start Game</h2>
 
-<div id="ui">
-  <h1>Speed Math</h1>
-  <p id="seasonBox">Season Spring</p>
-  <p id="levelBox">Level 1</p>
-  <p id="scoreBox">Score 0</p>
-  <p id="timeBox">Time 30</p>
+    <input id="nameInput" placeholder="Your name">
 
-  <div id="question"></div>
-  <input id="answer" type="number" inputmode="numeric">
-  <br>
-  <button onclick="check()">Submit</button>
-  <p id="result"></p>
-  <p id="medal"></p>
-</div>
+    <select id="opSelect">
+      <option value="add">Addition</option>
+      <option value="sub">Subtraction</option>
+      <option value="mul">Multiplication</option>
+      <option value="div">Division</option>
+    </select>
 
-<script>
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
+    <select id="difficultySelect">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
 
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+    <button onclick="startGame()">Start</button>
+    <div class="sub" id="lastResult"></div>
+  </div>
 
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
+  <div class="card" id="gameCard" style="display:none;">
+    <div id="question"></div>
+    <input id="answer" type="number" inputmode="numeric" autofocus>
 
-  let trees = [];
-  let clouds = [];
-  let birds = [];
-  let flowers = [];
-  let snowflakes = [];
-  let leaves = [];
-  let mountains = [];
+    <div id="liveTimer"></div>
 
-  let score = 0;
-  let level = 1;
-  let timeLeft = 30;
-  let season = "spring";
+    <div id="progressBar">
+      <div id="bar"></div>
+    </div>
+  </div>
 
-  function updateSeason() {
-    if (level % 4 === 1) season = "spring";
-    if (level % 4 === 2) season = "summer";
-    if (level % 4 === 3) season = "autumn";
-    if (level % 4 === 0) season = "winter";
-    document.getElementById("seasonBox").innerText = "Season " + season;
-  }
+  <div class="card" id="resultCard" style="display:none;">
+    <h2 id="finalTitle"></h2>
+    <div id="finalTime"></div>
+    <canvas id="chartCanvas"></canvas>
+    <button onclick="backToMenu()">Play Again</button>
+  </div>
 
-  function setupScene() {
-    trees = [];
-    clouds = [];
-    birds = [];
-    flowers = [];
-    snowflakes = [];
-    leaves = [];
-    mountains = [];
+  <script>
+    let userName = ""
+    let op = "add"
+    let difficulty = "easy"
+    let totalQuestions = 10
+    let current = 0
+    let a = 0
+    let b = 0
+    let correctAnswer = 0
+    let startTime = 0
+    let timerInterval = null
+    let resultsHistory = []
 
-    for (let i = 0; i < 25; i++) {
-      trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
+    const chart = document.getElementById("chartCanvas")
+    const chartCtx = chart.getContext("2d")
+
+    function getMaxNumber() {
+      if (difficulty === "easy") return 10
+      if (difficulty === "medium") return 50
+      return 100
     }
 
-    for (let i = 0; i < 6; i++) {
-      clouds.push({x: Math.random() * canvas.width, y: Math.random() * 200});
+    function startGame() {
+      userName = document.getElementById("nameInput").value || "Champion"
+      op = document.getElementById("opSelect").value
+      difficulty = document.getElementById("difficultySelect").value
+
+      document.getElementById("setupCard").style.display = "none"
+      document.getElementById("gameCard").style.display = "block"
+      document.getElementById("resultCard").style.display = "none"
+
+      current = 0
+      totalQuestions = 10
+      startTime = Date.now()
+
+      startLiveTimer()
+      newQuestion()
+      updateProgressBar()
     }
 
-    for (let i = 0; i < 20; i++) {
-      flowers.push({x: Math.random() * canvas.width, y: canvas.height - 80});
+    function startLiveTimer() {
+      clearInterval(timerInterval)
+      timerInterval = setInterval(function () {
+        let seconds = ((Date.now() - startTime) / 1000).toFixed(1)
+        document.getElementById("liveTimer").innerText =
+          "Time: " + seconds + " seconds"
+      }, 100)
     }
 
-    for (let i = 0; i < 30; i++) {
-      snowflakes.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height});
-    }
+    function newQuestion() {
+      const max = getMaxNumber()
+      a = Math.floor(Math.random() * max) + 1
+      b = Math.floor(Math.random() * max) + 1
 
-    for (let i = 0; i < 20; i++) {
-      leaves.push({x: Math.random() * canvas.width, y: Math.random() * 200});
-    }
-
-    for (let i = 0; i < 5; i++) {
-      mountains.push({x: i * 300, y: canvas.height - 100, width: 400, height: 200});
-    }
-  }
-
-  function drawBackground() {
-    if (season === "spring") ctx.fillStyle = "#cceeff";
-    if (season === "summer") ctx.fillStyle = "#87CEEB";
-    if (season === "autumn") ctx.fillStyle = "#FFD39B";
-    if (season === "winter") ctx.fillStyle = "#eef6ff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (season === "summer" || season === "spring") {
-      ctx.fillStyle = "yellow";
-      ctx.beginPath();
-      ctx.arc(canvas.width - 80, 80, 50, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    if (season === "winter") ctx.fillStyle = "white";
-    else ctx.fillStyle = "#4CAF50";
-    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-
-    ctx.fillStyle = "white";
-    clouds.forEach(c => {
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 30, 0, Math.PI * 2);
-      ctx.arc(c.x + 30, c.y + 10, 30, 0, Math.PI * 2);
-      ctx.arc(c.x + 60, c.y, 30, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    if (season === "spring") {
-      ctx.fillStyle = "pink";
-      flowers.forEach(f => {
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    }
-
-    if (season === "autumn") {
-      ctx.fillStyle = "orange";
-      leaves.forEach(l => {
-        ctx.beginPath();
-        ctx.arc(l.x, l.y, 4, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    }
-
-    if (season === "winter") {
-      ctx.fillStyle = "white";
-      snowflakes.forEach(s => {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    }
-  }
-
-  function drawTree(x, y) {
-    ctx.fillStyle = "saddlebrown";
-    ctx.fillRect(x - 10, y - 40, 20, 40);
-
-    if (season === "spring") ctx.fillStyle = "pink";
-    if (season === "summer") ctx.fillStyle = "darkgreen";
-    if (season === "autumn") ctx.fillStyle = "orange";
-    if (season === "winter") ctx.fillStyle = "lightgray";
-
-    ctx.beginPath();
-    ctx.moveTo(x, y - 80);
-    ctx.lineTo(x - 30, y - 40);
-    ctx.lineTo(x + 30, y - 40);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  function drawForest() {
-    trees.forEach(t => drawTree(t.x, t.y));
-  }
-
-  function animate() {
-    drawBackground();
-    drawForest();
-
-    clouds.forEach(c => {
-      c.x += 0.3;
-      if (c.x > canvas.width) c.x = -60;
-    });
-
-    requestAnimationFrame(animate);
-  }
-
-  let a;
-  let b;
-  let op;
-
-  function newQ() {
-    let max = 10 + level * 5;
-
-    a = Math.floor(Math.random() * max) + 1;
-    b = Math.floor(Math.random() * max) + 1;
-
-    const ops = ["+", "−", "×", "÷"];
-    op = ops[Math.floor(Math.random() * ops.length)];
-
-    if (op === "−" && b > a) {
-      let t = a;
-      a = b;
-      b = t;
-    }
-
-    if (op === "÷") {
-      a = a * b;
-    }
-
-    document.getElementById("question").innerText = a + " " + op + " " + b + " = ?";
-  }
-
-  function updateUI() {
-    document.getElementById("scoreBox").innerText = "Score " + score;
-    document.getElementById("levelBox").innerText = "Level " + level;
-  }
-
-  function check() {
-    const user = Number(document.getElementById("answer").value);
-    let correct = 0;
-
-    if (op === "+") correct = a + b;
-    if (op === "−") correct = a - b;
-    if (op === "×") correct = a * b;
-    if (op === "÷") correct = a / b;
-
-    if (user === correct) {
-      score++;
-      document.getElementById("result").innerText = "Correct";
-
-      trees.push({x: Math.random() * canvas.width, y: canvas.height - 100});
-
-      if (score % 5 === 0) {
-        level++;
-        updateSeason();
-        setupScene();
+      if (op === "sub" && b > a) {
+        let t = a
+        a = b
+        b = t
       }
 
-      if (score === 10) document.getElementById("medal").innerText = "Bronze Medal";
-      if (score === 20) document.getElementById("medal").innerText = "Silver Medal";
-      if (score === 30) document.getElementById("medal").innerText = "Gold Medal";
+      if (op === "div") {
+        a = b * (Math.floor(Math.random() * 10) + 1)
+      }
 
-    } else {
-      document.getElementById("result").innerText = "Try again";
+      if (op === "add") correctAnswer = a + b
+      if (op === "sub") correctAnswer = a - b
+      if (op === "mul") correctAnswer = a * b
+      if (op === "div") correctAnswer = a / b
+
+      let symbol = "+"
+      if (op === "sub") symbol = "−"
+      if (op === "mul") symbol = "×"
+      if (op === "div") symbol = "÷"
+
+      document.getElementById("question").innerText =
+        a + " " + symbol + " " + b
     }
 
-    document.getElementById("answer").value = "";
-    updateUI();
-    newQ();
-  }
+    function updateProgressBar() {
+      let percent = (current / totalQuestions) * 100
+      document.getElementById("bar").style.width = percent + "%"
+    }
 
-  function startTimer() {
-    setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft--;
-        document.getElementById("timeBox").innerText = "Time " + timeLeft;
-      } else {
-        document.getElementById("result").innerText = "Time Over";
+    function finishRound() {
+      clearInterval(timerInterval)
+
+      let timeTaken = ((Date.now() - startTime) / 1000).toFixed(2)
+
+      document.getElementById("gameCard").style.display = "none"
+      document.getElementById("resultCard").style.display = "block"
+
+      document.getElementById("finalTitle").innerText =
+        "Amazing job " + userName + "!"
+
+      document.getElementById("finalTime").innerText =
+        "Your time: " + timeTaken + " seconds"
+
+      const key =
+        "math_" + userName + "_" + op + "_" + difficulty
+
+      let history = JSON.parse(localStorage.getItem(key)) || []
+      history.push(Number(timeTaken))
+      localStorage.setItem(key, JSON.stringify(history))
+
+      resultsHistory = history
+      drawChart()
+    }
+
+    function drawChart() {
+      chart.width = 300
+      chart.height = 120
+      chartCtx.clearRect(0,0,chart.width,chart.height)
+
+      let max = Math.max.apply(null, resultsHistory)
+
+      chartCtx.strokeStyle = "#5edc7a"
+      chartCtx.beginPath()
+
+      resultsHistory.forEach(function(val, i) {
+        let x = (i / (resultsHistory.length - 1 || 1)) * chart.width
+        let y = chart.height - (val / max) * chart.height
+        if (i === 0) chartCtx.moveTo(x, y)
+        else chartCtx.lineTo(x, y)
+      })
+
+      chartCtx.stroke()
+    }
+
+    function backToMenu() {
+      document.getElementById("setupCard").style.display = "block"
+      document.getElementById("gameCard").style.display = "none"
+      document.getElementById("resultCard").style.display = "none"
+    }
+
+    document.getElementById("answer").addEventListener("input", function () {
+      if (this.value === "") return
+
+      if (Number(this.value) === correctAnswer) {
+        current++
+        updateProgressBar()
+
+        if (current >= totalQuestions) {
+          finishRound()
+        } else {
+          newQuestion()
+        }
+
+        this.value = ""
       }
-    }, 1000);
-  }
-
-  setupScene();
-  updateSeason();
-  animate();
-  updateUI();
-  newQ();
-  startTimer();
-</script>
+    })
+  </script>
 
 </body>
 </html>
