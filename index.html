@@ -600,6 +600,7 @@ function navGo(t){
   if(t==='home'){goHome();return;}
   if(t==='profile'){buildProfile();showSc('scProfile');return;}
   if(t==='mp'){showMP();return;}
+  if(t==='dolls'){buildDollRoom();showSc('scDolls');return;}
 }
 function updHomeHint(){
   if(!CUR)return;
@@ -941,6 +942,8 @@ function mpPickDiff(el, v){
   MP_DIFF = v;
 }
 
+var MP_OPS=["add"];
+function mpToggleOp(op){var idx=MP_OPS.indexOf(op);if(idx>=0){if(MP_OPS.length===1)return;MP_OPS.splice(idx,1);}else{MP_OPS.push(op);}["add","sub","mul","div"].forEach(function(o){var el=document.getElementById("mpop-"+o);if(el)el.classList.toggle("on",MP_OPS.includes(o));});}
 function mpTab(t){
   document.getElementById('mpC').style.display=t==='c'?'block':'none';
   document.getElementById('mpJ').style.display=t==='j'?'block':'none';
@@ -951,7 +954,7 @@ function mpTab(t){
 async function createRoom(){
   var code=String(Math.floor(100000+Math.random()*900000));
   MP.code=code;
-  var room={code:code,host:CUR.name,ops:GS.ops.slice(),diff:MP_DIFF||GS.diff,players:{},ts:Date.now()};
+  var room={code:code,host:CUR.name,ops:(typeof MP_OPS!=="undefined"&&MP_OPS.length?MP_OPS.slice():GS.ops.slice()),diff:MP_DIFF||GS.diff,players:{},ts:Date.now()};
   room.players[CUR.name]={done:false,time:null,errors:0};
   await apiRoom('write', room);
   renderRoom(room);
@@ -1086,6 +1089,18 @@ function navGo_dolls(){
   showSc('scDolls');
 }
 
+function giveTestDoll(){
+  var u=getU(CUR.name)||CUR;
+  u.dolls=u.dolls||[];
+  var dollTypes=['🐱','🐰','🐻','🦊','🐼'];
+  var games=['tictactoe','memory','snake_mini','pairs'];
+  var i=u.dolls.length;
+  u.dolls.push({type:dollTypes[i%dollTypes.length],name:'Doll #'+(i+1),ts:Date.now()-100000,game:games[i%games.length]});
+  if(!u.dollGames)u.dollGames={};
+  u.dollGames[games[i%games.length]]=true;
+  saveU(u);CUR=u;
+  buildDollRoom();
+}
 function buildDollRoom(){
   var u = getU(CUR.name)||CUR;
   var dolls = u.dolls||[];
@@ -1097,8 +1112,9 @@ function buildDollRoom(){
       '<div class="doll-empty">'+
         '<span class="doll-empty-ico">🎀</span>'+
         '<div class="pg-title" style="font-size:18px;margin-bottom:8px">No dolls yet!</div>'+
-        '<div class="doll-hint">Complete a round of 10 questions<br>with <b>0 mistakes</b> in under 1 minute<br>to earn your first doll ♡<br><br>Each doll unlocks a mini game!</div>'+
-        '<button class="btn btn-main" onclick="goHome()" style="margin-top:16px">Go play →</button>'+
+        '<div class="doll-hint">Finish 10 questions with<br><b>0 mistakes</b> in under a minute<br>to earn your first doll ♡<br><br>Each doll unlocks a mini game!</div>'+
+        '<button class="btn btn-main" onclick="goHome()" style="margin-top:14px">▶ Go play!</button>'+
+        '<button class="btn btn-ghost" onclick="giveTestDoll()" style="font-size:12px">🎀 Give me a doll to try</button>'+
       '</div>';
     return;
   }
@@ -1386,12 +1402,7 @@ function pairsClick(i){
   setTimeout(renderPairs,card.matched?0:620);
 }
 
-// Patch navGo to support dolls
-var _origNavGo = navGo;
-function navGo(t){
-  if(t==='dolls'){navActive('dolls');buildDollRoom();showSc('scDolls');return;}
-  _origNavGo(t);
-}
+// navGo already handles dolls above
 
 
 // ── BOOT ──
