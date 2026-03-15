@@ -450,6 +450,9 @@ transition:all .2s;position:relative;
     <div class="win-title">Race friends ⚡</div>
   </div>
   <div class="win-body" id="mpBody"></div>
+</div>
+</div>
+</div>
 
 <!-- DOLL ROOM -->
 <div class="sc" id="scDolls">
@@ -459,15 +462,9 @@ transition:all .2s;position:relative;
     <div class="win-dots"><div class="win-dot dot-r" onclick="goHome()" style="cursor:pointer"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
     <div class="win-title">My doll room 🎀</div>
   </div>
-  <div class="win-body" id="dollBody"></div>
+  <div class="win-body" id="dollBody"><div style="padding:20px;text-align:center;color:#b07090;font-size:13px">Loading... ♡</div></div>
 </div>
 </div>
-</div>
-
-</div>
-</div>
-</div>
-
 </div><!-- /main -->
 
 <div class="bnav" id="bnav" style="display:none">
@@ -567,7 +564,7 @@ navActive(t);
 if(t==='home'){goHome();return;}
 if(t==='profile'){buildProfile();showSc('scProfile');return;}
 if(t==='mp'){showMP();return;}
-if(t==='dolls'){buildDollRoom();showSc('scDolls');return;}
+if(t==='dolls'){showSc('scDolls');setTimeout(buildDollRoom,50);return;}
 }
 function updHomeHint(){
 if(!CUR)return;
@@ -1040,10 +1037,12 @@ buildDollRoom();
 }
 
 function buildDollRoom(){
-var u=getU(CUR.name)||CUR;
-var dolls=u.dolls||[];
 var body=document.getElementById('dollBody');
-if(!body)return;
+if(!body){setTimeout(buildDollRoom,100);return;}
+if(!CUR){body.innerHTML='<div style="padding:20px;text-align:center">Please log in first</div>';return;}
+var u=getU(CUR.name)||CUR;
+CUR=u;
+var dolls=u.dolls||[];
 
 if(dolls.length===0){
 body.innerHTML='<div class="doll-empty">'+
