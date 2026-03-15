@@ -28,20 +28,30 @@ radial-gradient(ellipse at 80% 100%,var(--acc3) 0%,transparent 50%),var(--bg);
 transition:background .3s;
 }
 
-.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.main{
+  position:fixed;inset:0;bottom:70px;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
 .main::-webkit-scrollbar{width:3px}
 .main::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
 .sc{display:none;padding:12px 14px 20px;min-height:100%}
 .sc.on{display:block}
 
-.win{width:100%;max-width:420px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:var(--shadow),0 0 0 1.5px var(--br);animation:pop .2s cubic-bezier(.34,1.56,.64,1)}
-@keyframes pop{0%{transform:scale(.92) translateY(8px);opacity:0}100%{transform:none;opacity:1}}
-.win-top{background:linear-gradient(180deg,var(--acc2),var(--acc));padding:8px 12px;display:flex;align-items:center}
+.win{width:100%;border-radius:0;overflow:hidden;box-shadow:none;animation:pop .25s cubic-bezier(.34,1.56,.64,1)}
+@media(max-width:599px){
+  .main{display:flex;justify-content:center;align-items:flex-start;padding:16px 14px}
+  .win{border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.12),0 4px 20px rgba(0,0,0,.06)}
+  .win-body{border-radius:0 0 24px 24px}
+  .sc{padding:10px 0 20px}
+}
+@keyframes pop{0%{transform:scale(.94) translateY(12px);opacity:0}100%{transform:none;opacity:1}}
+.win-top{background:linear-gradient(135deg,var(--acc2) 0%,var(--acc) 100%);padding:14px 16px 10px;display:flex;align-items:center}
 .win-dots{display:flex;gap:5px}
 .win-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.1)}
 .dot-r{background:#ff5f57}.dot-y{background:#ffbd2e}.dot-g{background:#28c840}
 .win-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:white;margin-right:34px;letter-spacing:.3px}
-.win-body{background:var(--surf);padding:20px 18px 24px;border:1.5px solid var(--br);border-top:none;border-radius:0 0 16px 16px}
+.win-body{background:var(--surf);padding:20px 16px 24px}
 
 .pg-title{font-size:clamp(22px,7vw,28px);font-weight:700;text-align:center;color:var(--acc);margin-bottom:3px}
 .pg-sub{text-align:center;font-size:11px;color:var(--mu);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px}
@@ -189,12 +199,35 @@ box-shadow:0 2px 6px rgba(0,0,0,.05);
 .conf{position:fixed;animation:cfall 2s ease-in forwards;border-radius:2px}
 @keyframes cfall{0%{transform:translateY(-8px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 
-.bnav{display:flex;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1.5px solid var(--br);z-index:9992;padding:6px 0 env(safe-area-inset-bottom,6px)}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 2px;cursor:pointer;border:none;background:none;color:var(--mu);transition:all .14s}
-.nb.on{color:var(--acc)}
-.nb:active{transform:scale(.9)}
-.nb-ico{font-size:20px}
-.nb-lbl{font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.bnav{
+  display:flex;justify-content:center;
+  background:transparent;
+  z-index:9992;
+  padding:10px 16px env(safe-area-inset-bottom,10px);
+  pointer-events:none;
+  position:fixed;bottom:0;left:0;right:0;
+}
+.bnav-inner{
+  display:flex;align-items:center;gap:2px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:99px;
+  box-shadow:0 4px 24px rgba(0,0,0,.1),0 0 0 1px rgba(0,0,0,.06);
+  padding:5px;
+  pointer-events:all;
+}
+.nb{
+  display:flex;align-items:center;gap:5px;
+  padding:8px 16px;border-radius:99px;
+  cursor:pointer;border:none;background:none;
+  color:var(--mu);font-family:inherit;
+  font-size:13px;font-weight:500;
+  transition:all .18s;white-space:nowrap;
+}
+.nb.on{background:var(--tx);color:white;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.nb:active{transform:scale(.95)}
+.nb-ico{font-size:16px;line-height:1}
+.nb-lbl{font-size:13px;font-weight:500}
 
 .code-big{font-size:clamp(30px,10vw,42px);font-weight:700;text-align:center;color:var(--acc);letter-spacing:10px;padding:14px;background:var(--acc3);border:1.5px solid var(--br);border-radius:14px;margin:10px 0;font-variant-numeric:tabular-nums}
 .mp-list{display:flex;flex-direction:column;gap:7px;margin:10px 0}
@@ -260,7 +293,7 @@ transition:all .2s;position:relative;
 
 <!-- AUTH -->
 <div class="sc on" id="scAuth">
-<div style="padding:22px 0 10px">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -291,11 +324,10 @@ transition:all .2s;position:relative;
   </div>
 </div>
 </div>
-</div>
 
 <!-- HOME -->
 <div class="sc" id="scHome">
-<div style="padding:12px 0 10px">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r" onclick="logout()" style="cursor:pointer" title="Logout"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -333,11 +365,10 @@ transition:all .2s;position:relative;
   </div>
 </div>
 </div>
-</div>
 
 <!-- GAME -->
 <div class="sc" id="scGame">
-<div style="padding:10px 0">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r" onclick="quitGame()" style="cursor:pointer" title="Quit"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -375,11 +406,10 @@ transition:all .2s;position:relative;
   </div>
 </div>
 </div>
-</div>
 
 <!-- RESULT -->
 <div class="sc" id="scResult">
-<div style="padding:10px 0">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r" onclick="goHome()" style="cursor:pointer"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -405,11 +435,10 @@ transition:all .2s;position:relative;
   </div>
 </div>
 </div>
-</div>
 
 <!-- PROFILE -->
 <div class="sc" id="scProfile">
-<div style="padding:10px 0">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r" onclick="goHome()" style="cursor:pointer"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -439,11 +468,10 @@ transition:all .2s;position:relative;
   </div>
 </div>
 </div>
-</div>
 
 <!-- RACE -->
 <div class="sc" id="scMP">
-<div style="padding:10px 0">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r" onclick="goHome()" style="cursor:pointer"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -452,11 +480,9 @@ transition:all .2s;position:relative;
   <div class="win-body" id="mpBody"></div>
 </div>
 </div>
-</div>
-
 <!-- DOLL ROOM -->
 <div class="sc" id="scDolls">
-<div style="padding:10px 0">
+
 <div class="win">
   <div class="win-top">
     <div class="win-dots"><div class="win-dot dot-r" onclick="goHome()" style="cursor:pointer"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
@@ -464,14 +490,15 @@ transition:all .2s;position:relative;
   </div>
   <div class="win-body" id="dollBody"><div style="padding:20px;text-align:center;color:#b07090;font-size:13px">Loading... ♡</div></div>
 </div>
-</div>
-</div><!-- /main -->
+<!-- /main -->
 
 <div class="bnav" id="bnav" style="display:none">
-  <button class="nb on" onclick="navGo('home')" id="nb-home"><span class="nb-ico">🏠</span><span class="nb-lbl">Home</span></button>
-  <button class="nb" onclick="navGo('profile')" id="nb-profile"><span class="nb-ico">♡</span><span class="nb-lbl">Profile</span></button>
-  <button class="nb" onclick="navGo('mp')" id="nb-mp"><span class="nb-ico">⚡</span><span class="nb-lbl">Race</span></button>
-  <button class="nb" onclick="navGo('dolls')" id="nb-dolls"><span class="nb-ico">🎀</span><span class="nb-lbl">Dolls</span></button>
+  <div class="bnav-inner">
+    <button class="nb on" onclick="navGo('home')" id="nb-home"><span class="nb-ico">🏠</span><span class="nb-lbl">Home</span></button>
+    <button class="nb" onclick="navGo('profile')" id="nb-profile"><span class="nb-ico">♡</span><span class="nb-lbl">Profile</span></button>
+    <button class="nb" onclick="navGo('mp')" id="nb-mp"><span class="nb-ico">⚡</span><span class="nb-lbl">Race</span></button>
+    <button class="nb" onclick="navGo('dolls')" id="nb-dolls"><span class="nb-ico">🎀</span><span class="nb-lbl">Dolls</span></button>
+  </div>
 </div>
 
 <script>
@@ -715,7 +742,7 @@ if(u.lastDay!==today){u.streak=u.lastDay===yest?(u.streak||0)+1:1;u.lastDay=toda
 var prev=u.achievements||[];
 u.achievements=ACHS.filter(function(a){return a.chk(u);}).map(function(a){return a.id;});
 var newAch=ACHS.filter(function(a){return !prev.includes(a.id)&&u.achievements.includes(a.id);});
-var earnedDoll = (errors===0 && skipped===0 && ms<=60000);
+var earnedDoll = (errors===0 && skipped===0 && GS.cur>=GS.qs && ms<=60000);
 if(earnedDoll){
 u.dolls = u.dolls || [];
 var dollTypes = ['🐱','🐰','🐻','🦊','🐼','🐸','🦋','🌸','⭐','🎀'];
@@ -1058,7 +1085,7 @@ html+='<div class="doll-card locked">'+
 '<div class="doll-name" style="color:var(--mu)">Next doll</div>'+
 '<div class="doll-game-tag">Perfect round!</div>'+
 '</div>'+
-'</div>'+;
+'</div>';
 
 body.innerHTML=html;
 var cards=body.querySelectorAll('.doll-card:not(.locked)');
