@@ -50,11 +50,18 @@ transition:background .3s;
   .sc{padding:0}
 }
 @keyframes pop{0%{transform:scale(.94) translateY(12px);opacity:0}100%{transform:none;opacity:1}}
-.win-top{background:linear-gradient(135deg,color-mix(in srgb,var(--acc2) 80%,transparent),color-mix(in srgb,var(--acc) 80%,transparent));padding:14px 16px 10px;display:flex;align-items:center;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.win-top{
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:10px 14px;
+  display:flex;align-items:center;
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
 .win-dots{display:flex;gap:5px}
-.win-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.1)}
+.win-dot{width:11px;height:11px;border-radius:50%;border:none}
 .dot-r{background:#ff5f57}.dot-y{background:#ffbd2e}.dot-g{background:#28c840}
-.win-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:white;margin-right:34px;letter-spacing:.3px}
+.win-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--tx);margin-right:33px;letter-spacing:.3px}
+
 .win-body{background:rgba(255,255,255,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:14px 14px 16px}
 
 .pg-title{font-size:clamp(22px,7vw,28px);font-weight:700;text-align:center;color:var(--acc);margin-bottom:3px}
@@ -207,7 +214,7 @@ box-shadow:0 2px 6px rgba(0,0,0,.05);
   display:flex;justify-content:center;
   background:transparent;
   z-index:9999;
-  padding:10px 16px env(safe-area-inset-bottom,10px);
+  padding:10px 16px 14px;
   pointer-events:none;
   position:fixed;bottom:0;left:0;right:0;
 }
@@ -884,7 +891,7 @@ document.getElementById('mpBody').innerHTML=
 '2. Your friend opens this app on <b>any device</b><br>'+
 '3. They register and tap "Join room"<br>'+
 '4. Both tap Start — fastest wins! ⚡<br>'+
-'<span style="color:var(--acc)">✓ Works across different phones & computers</span>'+
+'<span style="color:var(--acc)">✓ Works across devices when opened in Claude<br>📱 When using the downloaded file: same browser only</span>'+
 '</div>'+
 '<div class="segs"><div class="seg on" id="mpT1" onclick="mpTab(\'c\')">Create room</div><div class="seg" id="mpT2" onclick="mpTab(\'j\')">Join room</div></div>'+
 '<div id="mpC">'+
