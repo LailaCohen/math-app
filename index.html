@@ -1,291 +1,853 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-  <meta charset="UTF-8">
-  <title>Speed Math Trainer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>MathRush</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050d1a;--cyan:#00e5ff;--pink:#ff69b4;--lime:#aaff00;--gold:#ffd700;--purple:#a855f7;--red:#ff4444;--text:#e0f0ff;--muted:rgba(0,229,255,0.4);--border:rgba(0,229,255,0.2);--surf:rgba(8,18,45,0.97)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'Share Tech Mono',monospace;color:var(--text);display:flex;flex-direction:column;position:relative}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 40%,rgba(91,163,224,0.12),transparent 55%),radial-gradient(ellipse at 85% 20%,rgba(168,85,247,0.08),transparent 45%),linear-gradient(135deg,#050d1a,#0a1628 50%,#0d2040);z-index:-2}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:9990}
+.orb{position:fixed;border-radius:50%;filter:blur(70px);opacity:0.2;pointer-events:none;z-index:-1;animation:floatOrb 9s ease-in-out infinite}
+.orb1{width:260px;height:260px;background:#3b82f6;top:-80px;left:-80px}
+.orb2{width:160px;height:160px;background:#a855f7;bottom:60px;right:-40px;animation-delay:3s}
+.orb3{width:110px;height:110px;background:#22d3ee;top:45%;left:45%;animation-delay:6s}
+@keyframes floatOrb{0%,100%{transform:translate(0,0)}33%{transform:translate(22px,-16px)}66%{transform:translate(-16px,22px)}}
 
-  <style>
-    body {
-      font-family: Bookman Old Style;
-      background: #f2f9ff;
-      margin: 0;
-      text-align: center;
-      padding-top: 30px;
-    }
+/* LAYOUT */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-    .card {
-      background: white;
-      width: 92%;
-      max-width: 360px;
-      margin: auto;
-      border-radius: 22px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      padding: 24px;
-      animation: pop 0.6s ease;
-    }
+/* SCREENS */
+.sc{display:none;padding:10px 11px 14px;min-height:100%}
+.sc.on{display:block}
 
-    @keyframes pop {
-      0% { transform: scale(0.9); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
+/* WINDOW */
+.win{width:100%;max-width:500px;margin:0 auto;border-radius:8px 8px 5px 5px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,0.8),3px 3px 0 rgba(0,0,0,0.3),0 14px 36px rgba(0,0,0,0.6);animation:wp .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes wp{0%{transform:scale(0.88) translateY(14px);opacity:0}100%{transform:scale(1);opacity:1}}
+.tb{background:linear-gradient(180deg,#4a9be8,#1a6acb 10px,#1a6acb 90%,#0d4f9e);padding:5px 8px;display:flex;align-items:center;gap:5px;user-select:none}
+.tb-t{font-family:'VT323',monospace;color:#fff;font-size:17px;flex:1;text-shadow:1px 1px 2px rgba(0,0,0,0.5);letter-spacing:1px}
+.wbs{display:flex;gap:2px}
+.wb{width:20px;height:20px;border-radius:3px;border:1px solid rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;cursor:pointer;font-family:sans-serif;color:#111}
+.wbm,.wbx2{background:linear-gradient(180deg,#ece9d8,#d4d0c8)}.wbc{background:linear-gradient(180deg,#f0786a,#c9220a);color:#fff}
+.mb{background:#ece9d8;border-bottom:1px solid #aaa;padding:2px 8px;display:flex;gap:2px}
+.mi{font-family:'Share Tech Mono',monospace;font-size:11px;color:#000;padding:2px 7px;border-radius:2px;cursor:pointer}
+.mi:hover{background:#0054a6;color:#fff}
+.wb{background:linear-gradient(180deg,#ece9d8,#d4d0c8)}
+.wbody{background:var(--surf);padding:16px 15px 20px;border:2px solid rgba(74,155,232,0.22);border-top:none}
 
-    input, select {
-      font-size: 18px;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid #ccc;
-      margin: 8px 0;
-      width: 100%;
-      text-align: center;
-    }
+/* TYPOGRAPHY */
+.sc-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,6vw,28px);font-weight:900;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;background:linear-gradient(135deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sc-sub{text-align:center;color:var(--muted);font-size:11px;letter-spacing:4px;margin-bottom:16px}
+.lbl{font-family:'VT323',monospace;color:var(--cyan);font-size:16px;letter-spacing:2px;margin-bottom:4px}
+.fld{margin-bottom:12px}
 
-    #question {
-      font-size: 32px;
-      font-weight: bold;
-      margin: 20px 0;
-    }
+/* INPUTS */
+input,select{width:100%;background:rgba(0,6,20,0.9);border:1px solid var(--border);border-radius:5px;color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:15px;padding:9px 11px;outline:none;transition:all .2s;-webkit-appearance:none;appearance:none}
+input::placeholder{color:rgba(0,229,255,0.22)}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,0.18)}
+select option{background:#050d1a;color:var(--cyan)}
 
-    #liveTimer {
-      font-size: 18px;
-      margin-top: 10px;
-      color: #555;
-    }
+/* CHIPS */
+.chips{display:grid;gap:6px}
+.c4{grid-template-columns:repeat(4,1fr)}
+.c2{grid-template-columns:repeat(2,1fr)}
+.chip{background:rgba(0,6,20,0.85);border:1px solid var(--border);border-radius:6px;padding:8px 3px;text-align:center;cursor:pointer;transition:all .15s;color:var(--muted);font-family:'VT323',monospace;font-size:15px;letter-spacing:1px}
+.chip:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-1px)}
+.chip.on{background:rgba(0,229,255,0.12);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 9px rgba(0,229,255,0.14)}
+.ci{font-size:17px;display:block;margin-bottom:1px}
 
-    #progressBar {
-      width: 100%;
-      height: 12px;
-      background: #e0e0e0;
-      border-radius: 20px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
+/* BUTTONS */
+.btn{width:100%;padding:12px;border:none;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;transition:all .22s}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.16),transparent);transition:left .4s}
+.btn:hover::before{left:100%}.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(0)}
+.btn-p{background:linear-gradient(135deg,#0054a6,#1a6acb,#0a4a8f);color:#fff;box-shadow:0 0 16px rgba(0,84,166,0.35),inset 0 1px rgba(255,255,255,0.14);margin-top:14px}
+.btn-o{background:rgba(0,229,255,0.07);border:1px solid rgba(0,229,255,0.3);color:var(--cyan);margin-top:7px;font-size:11px}
+.btn-g{background:linear-gradient(135deg,#5a8a00,#aaff00,#6aaa00);color:#050d1a;margin-top:7px}
+.btn-pk{background:linear-gradient(135deg,#c9006e,#ff69b4);color:#fff;margin-top:7px}
+.sep{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:12px 0}
+.hint{font-family:'VT323',monospace;font-size:13px;color:var(--muted);text-align:center;letter-spacing:2px;margin-top:5px}
+.err{font-family:'VT323',monospace;font-size:13px;color:var(--red);letter-spacing:1px;margin-top:3px;text-align:center}
 
-    #bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(to right, #67e8f9, #5eead4);
-      transition: width 0.3s ease;
-    }
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px;gap:2px}
+.tab{flex:1;padding:7px 3px;text-align:center;cursor:pointer;font-family:'VT323',monospace;font-size:15px;letter-spacing:1px;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
+.tab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
 
-    button {
-      font-size: 18px;
-      padding: 14px;
-      width: 100%;
-      border-radius: 16px;
-      border: none;
-      background: #5edc7a;
-      color: white;
-      margin-top: 12px;
-    }
+/* GAME */
+.qnum{font-family:'VT323',monospace;color:var(--muted);font-size:14px;letter-spacing:3px;text-align:center;margin-bottom:5px}
+.qtext{font-family:'Orbitron',sans-serif;font-size:clamp(36px,10vw,54px);font-weight:900;color:#fff;text-align:center;text-shadow:0 0 22px rgba(0,229,255,0.38),0 0 44px rgba(0,229,255,0.12);animation:qp .22s cubic-bezier(.34,1.56,.64,1);margin:8px 0;letter-spacing:2px}
+@keyframes qp{0%{transform:scale(0.72);opacity:0}100%{transform:scale(1);opacity:1}}
+.timer-w{text-align:center;margin:4px 0}
+.timer-v{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--lime);text-shadow:0 0 10px rgba(170,255,0,0.4)}
+.ans-w{position:relative;margin:9px 0}
+.ans-w::before{content:'▶';position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--cyan);font-size:12px;z-index:1}
+#ansInput{padding-left:30px;font-size:19px;font-weight:bold;letter-spacing:3px}
+#ansInput:focus{border-color:var(--pink);box-shadow:0 0 14px rgba(255,105,180,0.22);color:var(--pink)}
+.prog-row{display:flex;justify-content:space-between;font-family:'VT323',monospace;font-size:13px;color:var(--muted);margin-bottom:4px}
+.prog-track{width:100%;height:6px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;border:1px solid rgba(0,229,255,0.12)}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#0054a6,var(--cyan),var(--pink));border-radius:4px;transition:width .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 5px rgba(0,229,255,0.45)}
+@keyframes fg{0%{background:rgba(0,229,100,0.16)}100%{background:transparent}}
+.flash{animation:fg .28s ease}
 
-    canvas {
-      width: 100%;
-      height: 120px;
-      margin-top: 10px;
-    }
+/* SCRATCH */
+.scp-hdr{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px}
+.scp-lbl{font-family:'VT323',monospace;font-size:13px;color:var(--muted);letter-spacing:3px}
+.scp-wrap{border:1px solid rgba(0,229,255,0.16);border-radius:6px;overflow:hidden;background:rgba(0,3,12,0.92);touch-action:none}
+#scratchCanvas{display:block;width:100%;height:110px;cursor:crosshair}
+.stools{display:flex;gap:5px;align-items:center;margin-top:4px;flex-wrap:wrap}
+.st{font-family:'VT323',monospace;font-size:12px;padding:3px 9px;border-radius:4px;cursor:pointer;transition:all .15s;letter-spacing:1px;border:1px solid var(--border);background:rgba(0,229,255,0.05);color:var(--muted)}
+.st.on{background:rgba(0,229,255,0.14);border-color:var(--cyan);color:var(--cyan)}
+.cdots{display:flex;gap:4px;margin-left:auto}
+.cdot{width:14px;height:14px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.cdot.on{border-color:#fff;transform:scale(1.25)}
+.clr-btn{font-family:'VT323',monospace;font-size:12px;padding:3px 9px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,105,180,0.3);background:rgba(255,105,180,0.09);color:var(--pink);letter-spacing:1px}
 
-    .sub {
-      font-size: 14px;
-      color: #666;
-      margin-top: 8px;
-    }
-  </style>
+/* RESULT */
+.res-t{font-family:'Orbitron',sans-serif;font-size:clamp(15px,5vw,20px);font-weight:900;text-align:center;letter-spacing:2px;background:linear-gradient(135deg,var(--pink),var(--cyan),var(--lime));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.time-big{font-family:'Orbitron',sans-serif;font-size:clamp(36px,11vw,52px);font-weight:900;color:var(--lime);text-shadow:0 0 22px rgba(170,255,0,0.42);display:block;text-align:center;margin:5px 0}
+.badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:5px 0}
+.bdg{font-family:'VT323',monospace;font-size:12px;padding:2px 9px;border-radius:20px;letter-spacing:1px}
+.b-n{background:rgba(255,105,180,0.16);color:var(--pink);border:1px solid rgba(255,105,180,0.32)}
+.b-p{background:rgba(255,215,0,0.16);color:var(--gold);border:1px solid rgba(255,215,0,0.36)}
+.s3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.sc2{background:rgba(0,4,16,0.88);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center}
+.sc2-l{font-family:'VT323',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;display:block}
+.sc2-v{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--cyan)}
+.chart-box{background:rgba(0,2,10,0.88);border:1px solid var(--border);border-radius:6px;padding:9px;margin:9px 0}
+.chart-lbl{font-family:'VT323',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;margin-bottom:5px}
+#chartCanvas{display:block;width:100%;height:65px}
+
+/* PROFILE */
+.prof-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 0 14px rgba(0,229,255,0.28)}
+.prof-name{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.prof-since{font-family:'VT323',monospace;font-size:13px;color:var(--muted);letter-spacing:2px}
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.sbox{background:rgba(0,4,16,0.88);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center}
+.sbox-v{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:var(--cyan);display:block}
+.sbox-l{font-family:'VT323',monospace;font-size:11px;color:var(--muted);letter-spacing:1px}
+
+/* ACHIEVEMENTS */
+.ach-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.ach{background:rgba(0,4,16,0.88);border:1px solid var(--border);border-radius:8px;padding:9px;display:flex;gap:8px;align-items:center;transition:all .2s}
+.ach.earn{border-color:var(--gold);background:rgba(255,215,0,0.06);box-shadow:0 0 9px rgba(255,215,0,0.09)}
+.ach-ico{font-size:24px;flex-shrink:0}
+.ach-name{font-family:'VT323',monospace;font-size:14px;color:var(--text);letter-spacing:1px}
+.ach-desc{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);line-height:1.4}
+.ach.lock .ach-ico{filter:grayscale(1) opacity(.28)}.ach.lock .ach-name{color:var(--muted)}
+
+/* LB */
+.lb-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;margin-bottom:5px;background:rgba(0,4,16,0.75);border:1px solid var(--border)}
+.lb-row.me{border-color:var(--cyan);background:rgba(0,229,255,0.06)}
+.lb-rank{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;width:24px;flex-shrink:0;text-align:center}
+.r1{color:var(--gold)}.r2{color:#c0c0c0}.r3{color:#cd7f32}
+.lb-name{flex:1;font-family:'VT323',monospace;font-size:16px;letter-spacing:1px}
+.lb-time{font-family:'Orbitron',monospace;font-size:11px;color:var(--lime)}
+.lb-bdg{font-size:10px;font-family:'VT323',monospace;padding:2px 6px;border-radius:10px;background:rgba(0,229,255,0.1);color:var(--cyan);border:1px solid var(--border)}
+
+/* MULTIPLAYER */
+.code-big{font-family:'Orbitron',sans-serif;font-size:clamp(24px,8vw,36px);font-weight:900;letter-spacing:8px;color:var(--lime);text-align:center;text-shadow:0 0 18px rgba(170,255,0,0.38);margin:9px 0}
+.mp-pl{display:flex;flex-direction:column;gap:6px;margin:9px 0}
+.mp-p{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:6px;background:rgba(0,4,16,0.75);border:1px solid var(--border)}
+.mp-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.mp-dot.ready{background:var(--lime);box-shadow:0 0 5px var(--lime)}.mp-dot.wait{background:var(--muted)}
+.mp-pn{font-family:'VT323',monospace;font-size:16px;letter-spacing:1px;flex:1}
+.mp-st{font-family:'VT323',monospace;font-size:12px;color:var(--muted)}
+
+/* CELEBRATION */
+.cel{position:fixed;inset:0;z-index:10001;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.cel-msg{font-family:'Orbitron',sans-serif;font-size:clamp(18px,6vw,34px);font-weight:900;text-align:center;padding:18px 26px;border-radius:14px;background:rgba(5,13,26,0.94);border:2px solid var(--gold);box-shadow:0 0 36px rgba(255,215,0,0.36);animation:cp .45s cubic-bezier(.34,1.56,.64,1) both;color:var(--gold);letter-spacing:2px;pointer-events:none}
+.cel-sub{font-family:'VT323',monospace;font-size:16px;color:#fff;letter-spacing:2px;margin-top:3px;display:block}
+@keyframes cp{0%{transform:scale(.4) rotate(-8deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.conf{position:fixed;width:7px;height:7px;border-radius:2px;animation:cf 2.2s ease-in forwards}
+@keyframes cf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* BOTTOM NAV */
+.bnav{display:flex;background:rgba(5,13,26,0.98);border-top:1px solid var(--border);z-index:9992;padding:5px 0 env(safe-area-inset-bottom,5px)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;cursor:pointer;transition:all .14s;color:var(--muted);border:none;background:none}
+.nb.on{color:var(--cyan)}.nb:active{transform:scale(.92)}
+.ni{font-size:19px}.nl{font-family:'VT323',monospace;font-size:11px;letter-spacing:1px}
+
+/* TASKBAR */
+.taskbar{height:36px;min-height:36px;background:linear-gradient(180deg,#245edb,#1340a8 60%,#1a52c4);border-top:2px solid #4a7fdc;display:flex;align-items:center;padding:0 8px;z-index:9993;box-shadow:0 -2px 7px rgba(0,0,0,0.5);order:2}
+.sbtn{background:linear-gradient(180deg,#5cb85c,#3a8a3a 50%,#2d6e2d 51%,#4aab4a);border:1px solid #1a4a1a;border-radius:10px;padding:3px 12px 3px 6px;color:#fff;font-family:'VT323',monospace;font-size:17px;display:flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:1px;font-weight:bold}
+.tb-r{margin-left:auto;display:flex;align-items:center;gap:6px}
+.tb-user{color:var(--cyan);font-family:'VT323',monospace;font-size:14px;background:rgba(0,0,50,.3);border:1px solid rgba(255,255,255,.14);padding:2px 7px;border-radius:4px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-clk{color:#fff;font-family:'VT323',monospace;font-size:15px;background:rgba(0,0,50,.3);border:1px solid rgba(255,255,255,.14);padding:2px 7px;border-radius:4px}
+
+/* TOAST */
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-70px);background:rgba(5,13,26,0.97);border:1px solid var(--cyan);border-radius:9px;padding:9px 18px;font-family:'VT323',monospace;font-size:15px;color:var(--cyan);letter-spacing:2px;z-index:10002;transition:transform .28s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 0 14px rgba(0,229,255,0.18)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+.slist{max-height:260px;overflow-y:auto}
+.slist::-webkit-scrollbar{width:3px}
+.slist::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* Recent game row */
+.rg-row{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:6px;margin-bottom:5px;background:rgba(0,4,16,0.75);border:1px solid var(--border)}
+.rg-op{font-size:14px}.rg-info{flex:1;font-family:'VT323',monospace;font-size:14px;color:var(--text)}
+.rg-time{font-family:'Orbitron',monospace;font-size:11px;color:var(--lime)}
+.rg-date{font-family:'VT323',monospace;font-size:11px;color:var(--muted)}
+</style>
 </head>
-
 <body>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="toast" id="toast"></div>
 
-  <div class="card" id="setupCard">
-    <h2>Start Game</h2>
+<div class="main" id="main">
 
-    <input id="nameInput" placeholder="Your name">
-
-    <select id="opSelect">
-      <option value="add">Addition</option>
-      <option value="sub">Subtraction</option>
-      <option value="mul">Multiplication</option>
-      <option value="div">Division</option>
-    </select>
-
-    <select id="difficultySelect">
-      <option value="easy">Easy</option>
-      <option value="medium">Medium</option>
-      <option value="hard">Hard</option>
-    </select>
-
-    <button onclick="startGame()">Start</button>
-    <div class="sub" id="lastResult"></div>
+<!-- AUTH -->
+<div class="sc on" id="scAuth"><div style="padding:18px 0 10px"><div class="win">
+  <div class="tb"><span>🧮</span><span class="tb-t">MathRush — Sign In</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc">✕</div></div></div>
+  <div class="mb"><span class="mi">File</span><span class="mi">Help</span></div>
+  <div class="wbody">
+    <div class="sc-title">MathRush</div>
+    <div class="sc-sub">▸ SPEED MATH TRAINER ▸</div>
+    <div class="tabs"><div class="tab on" onclick="aTab('l')">LOGIN</div><div class="tab" onclick="aTab('r')">REGISTER</div></div>
+    <div id="aLogin">
+      <div class="fld"><div class="lbl">► NAME</div><input id="lName" placeholder="Username..." autocomplete="username"></div>
+      <div class="fld"><div class="lbl">► PIN (4 digits)</div><input id="lPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="current-password"></div>
+      <div class="err" id="lErr"></div>
+      <button class="btn btn-p" onclick="doLogin()">▶ LOGIN</button>
+    </div>
+    <div id="aReg" style="display:none">
+      <div class="fld"><div class="lbl">► USERNAME</div><input id="rName" placeholder="Choose a name..." autocomplete="off"></div>
+      <div class="fld"><div class="lbl">► CREATE PIN (4 digits)</div><input id="rPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="new-password"></div>
+      <div class="err" id="rErr"></div>
+      <button class="btn btn-p" onclick="doReg()">✦ CREATE ACCOUNT</button>
+    </div>
+    <div class="sep"></div>
+    <div class="hint">All data saved locally on this device</div>
   </div>
+</div></div></div>
 
-  <div class="card" id="gameCard" style="display:none;">
-    <div id="question"></div>
-    <input id="answer" type="number" inputmode="numeric" autofocus>
+<!-- HOME -->
+<div class="sc" id="scHome"><div style="padding:10px 0"><div class="win">
+  <div class="tb"><span>⚡</span><span class="tb-t" id="homeTitle">MathRush</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc" onclick="logout()">✕</div></div></div>
+  <div class="mb"><span class="mi">Game</span><span class="mi" onclick="navGo('profile')">Profile</span><span class="mi" onclick="logout()">Logout</span></div>
+  <div class="wbody">
+    <div class="fld"><div class="lbl">► OPERATION</div>
+      <div class="chips c4">
+        <div class="chip on" onclick="pick('op',this,'add')"><span class="ci">＋</span>ADD</div>
+        <div class="chip" onclick="pick('op',this,'sub')"><span class="ci">－</span>SUB</div>
+        <div class="chip" onclick="pick('op',this,'mul')"><span class="ci">×</span>MUL</div>
+        <div class="chip" onclick="pick('op',this,'div')"><span class="ci">÷</span>DIV</div>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">► DIFFICULTY</div>
+      <div class="chips c2">
+        <div class="chip on" onclick="pick('diff',this,'easy')"><span class="ci">🟢</span>EASY (1-10)</div>
+        <div class="chip" onclick="pick('diff',this,'medium')"><span class="ci">🟡</span>MEDIUM (1-50)</div>
+        <div class="chip" onclick="pick('diff',this,'hard')"><span class="ci">🔴</span>HARD (1-100)</div>
+        <div class="chip" onclick="pick('diff',this,'ultra')"><span class="ci">💀</span>ULTRA (1-999)</div>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">► QUESTIONS</div>
+      <div class="chips c4">
+        <div class="chip" onclick="pick('qs',this,5)"><span class="ci">5</span>QUICK</div>
+        <div class="chip on" onclick="pick('qs',this,10)"><span class="ci">10</span>NORMAL</div>
+        <div class="chip" onclick="pick('qs',this,20)"><span class="ci">20</span>LONG</div>
+        <div class="chip" onclick="pick('qs',this,50)"><span class="ci">50</span>EPIC</div>
+      </div>
+    </div>
+    <div class="hint" id="homeHint" style="margin-bottom:9px"></div>
+    <button class="btn btn-p" onclick="startGame()">▶ LAUNCH GAME</button>
+    <button class="btn btn-o" onclick="navGo('mp')">👾 MULTIPLAYER (CODE)</button>
+  </div>
+</div></div></div>
 
-    <div id="liveTimer"></div>
-
-    <div id="progressBar">
-      <div id="bar"></div>
+<!-- GAME -->
+<div class="sc" id="scGame"><div style="padding:10px 0"><div class="win">
+  <div class="tb"><span>🎯</span><span class="tb-t" id="gTitle">Playing...</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc" onclick="quitGame()">✕</div></div></div>
+  <div class="mb"><span class="mi" onclick="quitGame()">Quit</span></div>
+  <div class="wbody" id="gBody">
+    <div class="qnum" id="qNum">Q 1 / 10</div>
+    <div class="qtext" id="qText">?</div>
+    <div class="timer-w"><span class="timer-v" id="timerV">00:00</span></div>
+    <div class="ans-w"><input id="ansInput" type="number" inputmode="decimal" placeholder="Answer..." autocomplete="off"></div>
+    <div class="prog-row"><span id="pTxt">0 / 10</span><span id="pPct">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
+    <div>
+      <div class="scp-hdr">
+        <span class="scp-lbl">✏ SCRATCH PAD</span>
+        <button class="clr-btn" onclick="clearScratch()">🗑 CLEAR</button>
+      </div>
+      <div class="scp-wrap"><canvas id="scratchCanvas"></canvas></div>
+      <div class="stools">
+        <button class="st on" id="stD" onclick="setTool('draw')">✏ DRAW</button>
+        <button class="st" id="stE" onclick="setTool('erase')">◻ ERASE</button>
+        <div class="cdots">
+          <div class="cdot on" style="background:#00e5ff" onclick="setColor('#00e5ff',this)"></div>
+          <div class="cdot" style="background:#fff" onclick="setColor('#fff',this)"></div>
+          <div class="cdot" style="background:#ff69b4" onclick="setColor('#ff69b4',this)"></div>
+          <div class="cdot" style="background:#aaff00" onclick="setColor('#aaff00',this)"></div>
+        </div>
+      </div>
     </div>
   </div>
+</div></div></div>
 
-  <div class="card" id="resultCard" style="display:none;">
-    <h2 id="finalTitle"></h2>
-    <div id="finalTime"></div>
-    <canvas id="chartCanvas"></canvas>
-    <button onclick="backToMenu()">Play Again</button>
+<!-- RESULT -->
+<div class="sc" id="scResult"><div style="padding:10px 0"><div class="win">
+  <div class="tb"><span>🏆</span><span class="tb-t">Results</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc" onclick="goHome()">✕</div></div></div>
+  <div class="mb"><span class="mi" onclick="goHome()">Home</span><span class="mi" onclick="startGame()">Again</span></div>
+  <div class="wbody">
+    <div class="res-t" id="resT">COMPLETE</div>
+    <div class="badges" id="resBdg"></div>
+    <span class="time-big" id="resTBig">00:00</span>
+    <div class="hint" id="resSub"></div>
+    <div class="s3" style="margin-top:10px">
+      <div class="sc2"><span class="sc2-l">BEST</span><span class="sc2-v" id="resBest">--</span></div>
+      <div class="sc2"><span class="sc2-l">PLAYS</span><span class="sc2-v" id="resPlays">1</span></div>
+      <div class="sc2"><span class="sc2-l">AVG</span><span class="sc2-v" id="resAvg">--</span></div>
+    </div>
+    <div class="chart-box"><div class="chart-lbl">▸ YOUR HISTORY</div><canvas id="chartCanvas" height="65"></canvas></div>
+    <div id="newAchW"></div>
+    <button class="btn btn-p" onclick="startGame()">▶ PLAY AGAIN</button>
+    <button class="btn btn-o" onclick="goHome()">↩ CHANGE SETTINGS</button>
   </div>
+</div></div></div>
 
-  <script>
-    let userName = ""
-    let op = "add"
-    let difficulty = "easy"
-    let totalQuestions = 10
-    let current = 0
-    let a = 0
-    let b = 0
-    let correctAnswer = 0
-    let startTime = 0
-    let timerInterval = null
-    let resultsHistory = []
+<!-- PROFILE -->
+<div class="sc" id="scProfile"><div style="padding:10px 0"><div class="win">
+  <div class="tb"><span>👤</span><span class="tb-t" id="profT">Profile</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc" onclick="goHome()">✕</div></div></div>
+  <div class="mb"><span class="mi" onclick="goHome()">Home</span><span class="mi" onclick="logout()">Logout</span></div>
+  <div class="wbody">
+    <div class="prof-hdr">
+      <div class="avatar" id="profAv">?</div>
+      <div><div class="prof-name" id="profN">—</div><div class="prof-since" id="profS">SINCE —</div></div>
+    </div>
+    <div class="srow">
+      <div class="sbox"><span class="sbox-v" id="pGames">0</span><span class="sbox-l">GAMES</span></div>
+      <div class="sbox"><span class="sbox-v" id="pBest">--</span><span class="sbox-l">BEST</span></div>
+      <div class="sbox"><span class="sbox-v" id="pStreak">0d</span><span class="sbox-l">STREAK</span></div>
+    </div>
+    <div class="sep"></div>
+    <div class="lbl" style="margin-bottom:8px">► ACHIEVEMENTS</div>
+    <div class="ach-grid" id="achGrid"></div>
+    <div class="sep"></div>
+    <div class="lbl" style="margin-bottom:8px">► RECENT GAMES</div>
+    <div id="recentG" class="slist"></div>
+  </div>
+</div></div></div>
 
-    const chart = document.getElementById("chartCanvas")
-    const chartCtx = chart.getContext("2d")
+<!-- LEADERBOARD -->
+<div class="sc" id="scLB"><div style="padding:10px 0"><div class="win">
+  <div class="tb"><span>🏅</span><span class="tb-t">Leaderboard</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc" onclick="goHome()">✕</div></div></div>
+  <div class="mb"><span class="mi" onclick="goHome()">Home</span></div>
+  <div class="wbody">
+    <div class="fld"><div class="lbl" style="margin-bottom:6px">► OPERATION</div>
+      <div class="chips c4" id="lbOpChips">
+        <div class="chip on" onclick="lbPick('op',this,'add')">＋ADD</div>
+        <div class="chip" onclick="lbPick('op',this,'sub')">－SUB</div>
+        <div class="chip" onclick="lbPick('op',this,'mul')">×MUL</div>
+        <div class="chip" onclick="lbPick('op',this,'div')">÷DIV</div>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl" style="margin-bottom:6px">► DIFFICULTY</div>
+      <div class="chips c2" id="lbDiffChips">
+        <div class="chip on" onclick="lbPick('diff',this,'easy')">🟢 EASY</div>
+        <div class="chip" onclick="lbPick('diff',this,'medium')">🟡 MEDIUM</div>
+        <div class="chip" onclick="lbPick('diff',this,'hard')">🔴 HARD</div>
+        <div class="chip" onclick="lbPick('diff',this,'ultra')">💀 ULTRA</div>
+      </div>
+    </div>
+    <div id="lbList" class="slist"></div>
+  </div>
+</div></div></div>
 
-    function getMaxNumber() {
-      if (difficulty === "easy") return 10
-      if (difficulty === "medium") return 50
-      return 100
-    }
+<!-- MULTIPLAYER -->
+<div class="sc" id="scMP"><div style="padding:10px 0"><div class="win">
+  <div class="tb"><span>👾</span><span class="tb-t">Multiplayer</span><div class="wbs"><div class="wb wbm">─</div><div class="wb wbx2">□</div><div class="wb wbc" onclick="goHome()">✕</div></div></div>
+  <div class="mb"><span class="mi" onclick="goHome()">Home</span></div>
+  <div class="wbody" id="mpBody"></div>
+</div></div></div>
 
-    function startGame() {
-      userName = document.getElementById("nameInput").value || "Champion"
-      op = document.getElementById("opSelect").value
-      difficulty = document.getElementById("difficultySelect").value
+</div><!-- /main -->
 
-      document.getElementById("setupCard").style.display = "none"
-      document.getElementById("gameCard").style.display = "block"
-      document.getElementById("resultCard").style.display = "none"
+<div class="bnav" id="bnav" style="display:none">
+  <button class="nb on" onclick="navGo('home')" id="nb-home"><span class="ni">🏠</span><span class="nl">HOME</span></button>
+  <button class="nb" onclick="navGo('profile')" id="nb-profile"><span class="ni">👤</span><span class="nl">PROFILE</span></button>
+  <button class="nb" onclick="navGo('lb')" id="nb-lb"><span class="ni">🏅</span><span class="nl">RANKS</span></button>
+  <button class="nb" onclick="navGo('mp')" id="nb-mp"><span class="ni">👾</span><span class="nl">MULTI</span></button>
+</div>
 
-      current = 0
-      totalQuestions = 10
-      startTime = Date.now()
+<div class="taskbar">
+  <div class="sbtn">⊞ Start</div>
+  <div class="tb-r">
+    <div class="tb-user" id="tbUser" style="display:none"></div>
+    <div class="tb-clk" id="tbClk">00:00</div>
+  </div>
+</div>
 
-      startLiveTimer()
-      newQuestion()
-      updateProgressBar()
-    }
+<script>
+// ===== DB =====
+const DB={
+  g(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
+  s(k,v){localStorage.setItem(k,JSON.stringify(v))},
+  d(k){localStorage.removeItem(k)}
+}
+function allU(){return DB.g('mr_u')||{}}
+function saveU(u){const a=allU();a[u.name]=u;DB.s('mr_u',a)}
+function getU(n){return allU()[n]||null}
+let CUR=null
 
-    function startLiveTimer() {
-      clearInterval(timerInterval)
-      timerInterval = setInterval(function () {
-        let seconds = ((Date.now() - startTime) / 1000).toFixed(1)
-        document.getElementById("liveTimer").innerText =
-          "Time: " + seconds + " seconds"
-      }, 100)
-    }
+// ===== ACHIEVEMENTS =====
+const ACHS=[
+  {id:'first',icon:'🎉',name:'FIRST WIN',desc:'Complete first game',chk:u=>u.totalGames>=1},
+  {id:'ten',icon:'🔟',name:'TEN GAMES',desc:'Play 10 games',chk:u=>u.totalGames>=10},
+  {id:'fifty',icon:'🏅',name:'VETERAN',desc:'Play 50 games',chk:u=>u.totalGames>=50},
+  {id:'speed',icon:'⚡',name:'SPEED DEMON',desc:'Finish 10 Qs under 30s',chk:u=>u.bestTimes&&Object.values(u.bestTimes).some(v=>v<30)},
+  {id:'streak3',icon:'🔥',name:'ON FIRE',desc:'3 day streak',chk:u=>(u.streak||0)>=3},
+  {id:'streak7',icon:'💎',name:'DIAMOND',desc:'7 day streak',chk:u=>(u.streak||0)>=7},
+  {id:'ultra',icon:'💀',name:'ULTRA MODE',desc:'Complete an ULTRA game',chk:u=>u.diffs&&u.diffs.includes('ultra')},
+  {id:'allops',icon:'🧮',name:'POLYMATH',desc:'Win all 4 operations',chk:u=>u.ops&&['add','sub','mul','div'].every(o=>u.ops.includes(o))},
+  {id:'marathon',icon:'🏃',name:'MARATHON',desc:'Complete 50 questions',chk:u=>u.history&&u.history.some(h=>h.qs>=50)},
+  {id:'perfect10',icon:'✨',name:'FAST 10',desc:'10 Qs under 20s',chk:u=>u.bestTimes&&Object.values(u.bestTimes).some(v=>v<20)},
+]
 
-    function newQuestion() {
-      const max = getMaxNumber()
-      a = Math.floor(Math.random() * max) + 1
-      b = Math.floor(Math.random() * max) + 1
+// ===== AUTH =====
+function aTab(t){
+  document.getElementById('aLogin').style.display=t==='l'?'block':'none'
+  document.getElementById('aReg').style.display=t==='r'?'block':'none'
+  document.querySelectorAll('#scAuth .tab').forEach((el,i)=>el.classList.toggle('on',(i===0&&t==='l')||(i===1&&t==='r')))
+}
+function doReg(){
+  const n=(document.getElementById('rName').value||'').trim()
+  const p=document.getElementById('rPin').value
+  const e=document.getElementById('rErr')
+  e.textContent=''
+  if(n.length<2){e.textContent='► Name must be at least 2 characters';return}
+  if(!/^\d{4}$/.test(p)){e.textContent='► PIN must be exactly 4 digits';return}
+  if(getU(n)){e.textContent='► Name already taken';return}
+  const u={name:n,pin:p,created:Date.now(),totalGames:0,streak:0,lastDay:'',history:[],bestTimes:{},achievements:[],ops:[],diffs:[]}
+  saveU(u);loginAs(u)
+}
+function doLogin(){
+  const n=(document.getElementById('lName').value||'').trim()
+  const p=document.getElementById('lPin').value
+  const e=document.getElementById('lErr')
+  e.textContent=''
+  const u=getU(n)
+  if(!u){e.textContent='► User not found';return}
+  if(u.pin!==p){e.textContent='► Wrong PIN';return}
+  loginAs(u)
+}
+function loginAs(u){
+  CUR=u;DB.s('mr_sess',u.name)
+  document.getElementById('tbUser').textContent='▶ '+u.name
+  document.getElementById('tbUser').style.display='block'
+  document.getElementById('bnav').style.display='flex'
+  updStreak();goHome()
+}
+function logout(){
+  DB.d('mr_sess');CUR=null
+  document.getElementById('tbUser').style.display='none'
+  document.getElementById('bnav').style.display='none'
+  showSc('scAuth')
+}
 
-      if (op === "sub" && b > a) {
-        let t = a
-        a = b
-        b = t
-      }
+// ===== STREAK =====
+function updStreak(){
+  if(!CUR)return
+  const today=new Date().toDateString()
+  if(CUR.lastDay===today)return
+  const yest=new Date(Date.now()-86400000).toDateString()
+  CUR.streak=CUR.lastDay===yest?(CUR.streak||0)+1:1
+  CUR.lastDay=today;saveU(CUR)
+}
 
-      if (op === "div") {
-        a = b * (Math.floor(Math.random() * 10) + 1)
-      }
+// ===== NAV =====
+function showSc(id){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.toggle('on',s.id===id))
+  document.getElementById('main').scrollTop=0
+}
+function navActive(t){document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));const el=document.getElementById('nb-'+t);if(el)el.classList.add('on')}
+function goHome(){showSc('scHome');updHomeHint();navActive('home')}
+function navGo(t){
+  navActive(t)
+  if(t==='home'){goHome();return}
+  if(t==='profile'){buildProfile();showSc('scProfile');return}
+  if(t==='lb'){buildLB();showSc('scLB');return}
+  if(t==='mp'){showMP();return}
+}
+function updHomeHint(){
+  if(!CUR)return
+  document.getElementById('homeTitle').textContent='MathRush — '+CUR.name
+  const key=GS.op+'_'+GS.diff
+  const best=CUR.bestTimes[key]
+  const el=document.getElementById('homeHint')
+  el.textContent=best?'▸ Best: '+fmtSec(best)+' · Total games: '+(CUR.totalGames||0):'▸ No records yet for this mode — go get one!'
+}
 
-      if (op === "add") correctAnswer = a + b
-      if (op === "sub") correctAnswer = a - b
-      if (op === "mul") correctAnswer = a * b
-      if (op === "div") correctAnswer = a / b
+// ===== GAME STATE =====
+let GS={op:'add',diff:'easy',qs:10,a:0,b:0,ans:0,cur:0,startTime:0,tInt:null}
+function pick(g,el,v){
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'))
+  el.classList.add('on')
+  if(g==='op')GS.op=v
+  if(g==='diff')GS.diff=v
+  if(g==='qs')GS.qs=Number(v)
+  updHomeHint()
+}
+function startGame(){
+  if(!CUR)return
+  GS.cur=0;GS.startTime=Date.now()
+  clearInterval(GS.tInt)
+  document.getElementById('gTitle').textContent=CUR.name+' · '+GS.op.toUpperCase()+' · '+GS.diff.toUpperCase()
+  showSc('scGame');navActive('')
+  setTimeout(()=>{initScratch();clearScratch()},40)
+  updProg();genQ();startTimer()
+  setTimeout(()=>document.getElementById('ansInput').focus(),80)
+}
+function quitGame(){clearInterval(GS.tInt);goHome()}
+function getMax(){return{easy:10,medium:50,hard:100,ultra:999}[GS.diff]}
+function genQ(){
+  const max=getMax()
+  let a=Math.floor(Math.random()*max)+1,b=Math.floor(Math.random()*max)+1
+  if(GS.op==='sub'&&b>a){[a,b]=[b,a]}
+  if(GS.op==='div'){a=b*(Math.floor(Math.random()*10)+1)}
+  GS.a=a;GS.b=b
+  GS.ans={add:a+b,sub:a-b,mul:a*b,div:a/b}[GS.op]
+  document.getElementById('qText').textContent=a+' '+{add:'＋',sub:'－',mul:'×',div:'÷'}[GS.op]+' '+b
+  document.getElementById('qNum').textContent='Q '+(GS.cur+1)+' / '+GS.qs
+}
+function updProg(){
+  const p=Math.round((GS.cur/GS.qs)*100)
+  document.getElementById('pFill').style.width=p+'%'
+  document.getElementById('pTxt').textContent=GS.cur+' / '+GS.qs
+  document.getElementById('pPct').textContent=p+'%'
+}
+function startTimer(){
+  clearInterval(GS.tInt)
+  GS.tInt=setInterval(()=>{document.getElementById('timerV').textContent=fmtMs(Date.now()-GS.startTime)},500)
+}
+document.getElementById('ansInput').addEventListener('input',function(){
+  if(!this.value)return
+  if(Number(this.value)===GS.ans){
+    GS.cur++;updProg()
+    const b=document.getElementById('gBody');b.classList.remove('flash');void b.offsetWidth;b.classList.add('flash')
+    this.value=''
+    if(GS.cur>=GS.qs)finishGame();else genQ()
+  }
+})
 
-      let symbol = "+"
-      if (op === "sub") symbol = "−"
-      if (op === "mul") symbol = "×"
-      if (op === "div") symbol = "÷"
+// ===== FINISH =====
+function finishGame(){
+  clearInterval(GS.tInt)
+  const ms=Date.now()-GS.startTime,sec=ms/1000
 
-      document.getElementById("question").innerText =
-        a + " " + symbol + " " + b
-    }
+  CUR.totalGames=(CUR.totalGames||0)+1
+  CUR.history=CUR.history||[]
+  CUR.history.unshift({op:GS.op,diff:GS.diff,qs:GS.qs,sec,ts:Date.now()})
+  if(CUR.history.length>100)CUR.history.length=100
 
-    function updateProgressBar() {
-      let percent = (current / totalQuestions) * 100
-      document.getElementById("bar").style.width = percent + "%"
-    }
+  const key=GS.op+'_'+GS.diff
+  const isPB=!CUR.bestTimes[key]||sec<CUR.bestTimes[key]
+  if(isPB)CUR.bestTimes[key]=sec
 
-    function finishRound() {
-      clearInterval(timerInterval)
+  CUR.ops=CUR.ops||[];CUR.diffs=CUR.diffs||[]
+  if(!CUR.ops.includes(GS.op))CUR.ops.push(GS.op)
+  if(!CUR.diffs.includes(GS.diff))CUR.diffs.push(GS.diff)
 
-      let timeTaken = ((Date.now() - startTime) / 1000).toFixed(2)
+  updStreak()
 
-      document.getElementById("gameCard").style.display = "none"
-      document.getElementById("resultCard").style.display = "block"
+  const prev=CUR.achievements||[]
+  CUR.achievements=ACHS.filter(a=>a.chk(CUR)).map(a=>a.id)
+  const newAch=ACHS.filter(a=>!prev.includes(a.id)&&CUR.achievements.includes(a.id))
+  saveU(CUR)
 
-      document.getElementById("finalTitle").innerText =
-        "Amazing job " + userName + "!"
+  const modeH=(CUR.history||[]).filter(h=>h.op===GS.op&&h.diff===GS.diff).map(h=>h.sec)
+  const best=CUR.bestTimes[key]
+  const avg=modeH.length?modeH.reduce((a,b)=>a+b,0)/modeH.length:sec
 
-      document.getElementById("finalTime").innerText =
-        "Your time: " + timeTaken + " seconds"
+  document.getElementById('resT').textContent='✦ '+CUR.name.toUpperCase()+' ✦'
+  document.getElementById('resTBig').textContent=fmtMs(ms)
+  document.getElementById('resSub').textContent=GS.op.toUpperCase()+' · '+GS.diff.toUpperCase()+' · '+GS.qs+' questions'
+  document.getElementById('resBest').textContent=fmtSec(best)
+  document.getElementById('resPlays').textContent=modeH.length
+  document.getElementById('resAvg').textContent=fmtSec(avg)
 
-      const key =
-        "math_" + userName + "_" + op + "_" + difficulty
+  let bdg=(isPB?'<span class="bdg b-p">🏆 NEW BEST!</span>':'')+'<span class="bdg b-n">✦ COMPLETED</span>'
+  if(CUR.streak>=3)bdg+='<span class="bdg b-p">🔥 '+CUR.streak+' DAY STREAK</span>'
+  document.getElementById('resBdg').innerHTML=bdg
 
-      let history = JSON.parse(localStorage.getItem(key)) || []
-      history.push(Number(timeTaken))
-      localStorage.setItem(key, JSON.stringify(history))
+  const aw=document.getElementById('newAchW')
+  aw.innerHTML=newAch.length?'<div class="sep"></div><div class="lbl" style="margin-bottom:7px">🏅 NEW ACHIEVEMENTS!</div>'+
+    newAch.map(a=>`<div class="ach earn" style="margin-bottom:6px"><div class="ach-ico">${a.icon}</div><div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div></div>`).join(''):''
 
-      resultsHistory = history
-      drawChart()
-    }
+  drawChart(modeH.slice(0,20).reverse())
+  showSc('scResult')
 
-    function drawChart() {
-      chart.width = 300
-      chart.height = 120
-      chartCtx.clearRect(0,0,chart.width,chart.height)
+  if(isPB)celebrate('🏆 PERSONAL BEST!','New record: '+fmtMs(ms))
+  else if(newAch.length)celebrate(newAch[0].icon+' '+newAch[0].name,newAch[0].desc)
+  else if(sec<GS.qs*3&&GS.qs>=10)celebrate('⚡ BLAZING FAST!','Amazing work!')
+  else if(CUR.streak>=3)celebrate('🔥 '+CUR.streak+' DAY STREAK!','Keep it up!')
+}
 
-      let max = Math.max.apply(null, resultsHistory)
+// ===== CELEBRATE =====
+function celebrate(msg,sub){
+  const el=document.createElement('div')
+  el.className='cel'
+  el.innerHTML=`<div class="cel-msg">${msg}<span class="cel-sub">${sub||''}</span></div>`
+  document.body.appendChild(el)
+  confetti()
+  setTimeout(()=>el.remove(),2600)
+}
+function confetti(){
+  const cols=['#00e5ff','#ff69b4','#aaff00','#ffd700','#a855f7','#fff']
+  for(let i=0;i<55;i++)setTimeout(()=>{
+    const el=document.createElement('div')
+    el.className='conf'
+    el.style.cssText=`left:${Math.random()*100}vw;top:0;background:${cols[~~(Math.random()*cols.length)]};width:${5+Math.random()*5}px;height:${5+Math.random()*5}px;animation-duration:${1.4+Math.random()*1.4}s;border-radius:${Math.random()>.5?'50%':'2px'}`
+    document.body.appendChild(el)
+    setTimeout(()=>el.remove(),2800)
+  },i*30)
+}
 
-      chartCtx.strokeStyle = "#5edc7a"
-      chartCtx.beginPath()
+// ===== CHART =====
+function drawChart(hist){
+  const cv=document.getElementById('chartCanvas')
+  if(!cv)return
+  const ctx=cv.getContext('2d')
+  cv.width=cv.offsetWidth||380;cv.height=65
+  ctx.clearRect(0,0,cv.width,cv.height)
+  if(hist.length<2){ctx.fillStyle='rgba(0,229,255,0.28)';ctx.font='12px VT323,monospace';ctx.fillText('Play more to see history!',8,36);return}
+  const mx=Math.max(...hist),mn=Math.min(...hist),rng=mx-mn||1,pd=7
+  ctx.strokeStyle='rgba(0,229,255,0.07)';ctx.lineWidth=1
+  for(let i=0;i<=3;i++){const y=pd+(i/3)*(cv.height-pd*2);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cv.width,y);ctx.stroke()}
+  const pts=hist.map((v,i)=>({x:(i/(hist.length-1))*cv.width,y:pd+(1-(v-mn)/rng)*(cv.height-pd*2)}))
+  const gr=ctx.createLinearGradient(0,0,0,cv.height)
+  gr.addColorStop(0,'rgba(0,229,255,0.22)');gr.addColorStop(1,'rgba(0,229,255,0)')
+  ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y))
+  ctx.lineTo(cv.width,cv.height);ctx.lineTo(0,cv.height);ctx.closePath();ctx.fillStyle=gr;ctx.fill()
+  ctx.beginPath();ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.shadowColor='#00e5ff';ctx.shadowBlur=5
+  pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.shadowBlur=0
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#00e5ff';ctx.fill()})
+}
 
-      resultsHistory.forEach(function(val, i) {
-        let x = (i / (resultsHistory.length - 1 || 1)) * chart.width
-        let y = chart.height - (val / max) * chart.height
-        if (i === 0) chartCtx.moveTo(x, y)
-        else chartCtx.lineTo(x, y)
-      })
+// ===== PROFILE =====
+function buildProfile(){
+  if(!CUR)return
+  const u=CUR
+  document.getElementById('profT').textContent='Profile — '+u.name
+  document.getElementById('profAv').textContent=u.name[0].toUpperCase()
+  document.getElementById('profN').textContent=u.name
+  document.getElementById('profS').textContent='SINCE '+new Date(u.created||Date.now()).toLocaleDateString()
+  document.getElementById('pGames').textContent=u.totalGames||0
+  const bAll=u.bestTimes&&Object.keys(u.bestTimes).length?Math.min(...Object.values(u.bestTimes)):null
+  document.getElementById('pBest').textContent=bAll?fmtSec(bAll):'--'
+  document.getElementById('pStreak').textContent=(u.streak||0)+'d'
+  const earned=u.achievements||[]
+  document.getElementById('achGrid').innerHTML=ACHS.map(a=>`<div class="ach ${earned.includes(a.id)?'earn':'lock'}"><div class="ach-ico">${a.icon}</div><div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div></div>`).join('')
+  const hist=(u.history||[]).slice(0,15)
+  const ops={add:'＋',sub:'－',mul:'×',div:'÷'}
+  document.getElementById('recentG').innerHTML=hist.length?hist.map(h=>`<div class="rg-row"><span class="rg-op">${ops[h.op]}</span><span class="rg-info">${h.diff.toUpperCase()} · ${h.qs}Q</span><span class="rg-time">${fmtSec(h.sec)}</span><span class="rg-date">${new Date(h.ts).toLocaleDateString()}</span></div>`).join(''):'<div class="hint">No games yet!</div>'
+}
 
-      chartCtx.stroke()
-    }
+// ===== LEADERBOARD =====
+let LBF={op:'add',diff:'easy'}
+function lbPick(g,el,v){
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'))
+  el.classList.add('on')
+  if(g==='op')LBF.op=v;if(g==='diff')LBF.diff=v
+  buildLB()
+}
+function buildLB(){
+  const key=LBF.op+'_'+LBF.diff
+  const rows=Object.values(allU())
+    .filter(u=>u.bestTimes&&u.bestTimes[key])
+    .map(u=>({name:u.name,t:u.bestTimes[key],g:u.totalGames||0}))
+    .sort((a,b)=>a.t-b.t)
+  const rc=['r1','r2','r3']
+  document.getElementById('lbList').innerHTML=rows.length?rows.map((r,i)=>`
+    <div class="lb-row ${CUR&&r.name===CUR.name?'me':''}">
+      <span class="lb-rank ${rc[i]||''}">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</span>
+      <span class="lb-name">${r.name}${CUR&&r.name===CUR.name?' ◀':''}</span>
+      <span class="lb-time">${fmtSec(r.t)}</span>
+      <span class="lb-bdg">${r.g}G</span>
+    </div>`).join(''):'<div class="hint" style="padding:20px 0">No scores for this mode yet!<br>Be the first! 🏆</div>'
+}
 
-    function backToMenu() {
-      document.getElementById("setupCard").style.display = "block"
-      document.getElementById("gameCard").style.display = "none"
-      document.getElementById("resultCard").style.display = "none"
-    }
+// ===== MULTIPLAYER =====
+let MP={code:'',inRace:false,polInt:null}
+function showMP(){
+  navActive('mp');showSc('scMP')
+  document.getElementById('mpBody').innerHTML=`
+    <div class="sc-title" style="margin-bottom:3px">MULTIPLAYER</div>
+    <div class="sc-sub">▸ SHARE A CODE WITH FRIENDS ▸</div>
+    <div class="tabs"><div class="tab on" onclick="mpT('c')">CREATE ROOM</div><div class="tab" onclick="mpT('j')">JOIN ROOM</div></div>
+    <div id="mpC">
+      <div class="fld"><div class="lbl">► OPERATION</div>
+        <div class="chips c4">
+          <div class="chip on" onclick="pick('op',this,'add')"><span class="ci">＋</span>ADD</div>
+          <div class="chip" onclick="pick('op',this,'sub')"><span class="ci">－</span>SUB</div>
+          <div class="chip" onclick="pick('op',this,'mul')"><span class="ci">×</span>MUL</div>
+          <div class="chip" onclick="pick('op',this,'div')"><span class="ci">÷</span>DIV</div>
+        </div>
+      </div>
+      <div class="fld"><div class="lbl">► DIFFICULTY</div>
+        <div class="chips c2">
+          <div class="chip on" onclick="pick('diff',this,'easy')">🟢 EASY</div>
+          <div class="chip" onclick="pick('diff',this,'medium')">🟡 MEDIUM</div>
+          <div class="chip" onclick="pick('diff',this,'hard')">🔴 HARD</div>
+          <div class="chip" onclick="pick('diff',this,'ultra')">💀 ULTRA</div>
+        </div>
+      </div>
+      <div class="fld"><div class="lbl">► QUESTIONS</div>
+        <div class="chips c4">
+          <div class="chip on" onclick="pick('qs',this,5)"><span class="ci">5</span>QUICK</div>
+          <div class="chip" onclick="pick('qs',this,10)"><span class="ci">10</span>NORMAL</div>
+          <div class="chip" onclick="pick('qs',this,20)"><span class="ci">20</span>LONG</div>
+        </div>
+      </div>
+      <button class="btn btn-g" onclick="createRoom()">🎮 CREATE ROOM</button>
+    </div>
+    <div id="mpJ" style="display:none">
+      <div class="fld"><div class="lbl">► ROOM CODE</div>
+        <input id="jCode" placeholder="6-digit code..." inputmode="numeric" maxlength="6" style="text-align:center;font-size:20px;letter-spacing:6px">
+      </div>
+      <button class="btn btn-pk" onclick="joinRoom()">📡 JOIN ROOM</button>
+    </div>`
+}
+function mpT(t){
+  document.getElementById('mpC').style.display=t==='c'?'block':'none'
+  document.getElementById('mpJ').style.display=t==='j'?'block':'none'
+  document.querySelectorAll('#scMP .tab').forEach((el,i)=>el.classList.toggle('on',(i===0&&t==='c')||(i===1&&t==='j')))
+}
+function createRoom(){
+  const code=String(Math.floor(100000+Math.random()*900000))
+  MP.code=code
+  const room={code,host:CUR.name,op:GS.op,diff:GS.diff,qs:GS.qs,players:{[CUR.name]:{done:false,time:null}},status:'waiting',ts:Date.now()}
+  DB.s('mpr_'+code,room)
+  renderRoom(room)
+}
+function joinRoom(){
+  const code=(document.getElementById('jCode').value||'').trim()
+  if(code.length!==6){toast('Enter 6-digit code!');return}
+  const room=DB.g('mpr_'+code)
+  if(!room){toast('Room not found!');return}
+  if(room.status!=='waiting'){toast('Game already started!');return}
+  MP.code=code
+  room.players[CUR.name]={done:false,time:null}
+  DB.s('mpr_'+code,room)
+  renderRoom(room)
+}
+function renderRoom(room){
+  document.getElementById('mpBody').innerHTML=`
+    <div class="lbl" style="margin-bottom:3px">► ROOM CODE</div>
+    <div class="code-big">${room.code}</div>
+    <div class="hint" style="margin-bottom:9px">Share this code! All on same device or network.</div>
+    <div class="lbl" style="margin-bottom:5px">► PLAYERS (${Object.keys(room.players).length})</div>
+    <div class="mp-pl" id="mpPl"></div>
+    <div class="sep"></div>
+    <div class="hint" id="mpSt">Waiting for players...</div>
+    <button class="btn btn-g" style="margin-top:10px" onclick="mpStart()">▶ START RACE!</button>
+    <button class="btn btn-o" onclick="goHome()">← LEAVE</button>`
+  pollRoom()
+  if(MP.polInt)clearInterval(MP.polInt)
+  MP.polInt=setInterval(()=>{const r=DB.g('mpr_'+MP.code);if(r)pollRoom(r)},1200)
+}
+function pollRoom(room){
+  if(!room)room=DB.g('mpr_'+MP.code)
+  if(!room)return
+  const el=document.getElementById('mpPl')
+  if(!el)return
+  el.innerHTML=Object.entries(room.players).map(([name,p])=>`
+    <div class="mp-p">
+      <div class="mp-dot ${p.time?'ready':'wait'}"></div>
+      <span class="mp-pn">${name}${name===room.host?' 👑':''}</span>
+      <span class="mp-st">${p.time?'✓ '+fmtSec(p.time):'Racing...'}</span>
+    </div>`).join('')
+  const all=Object.values(room.players)
+  if(all.length>1&&all.every(p=>p.time!==null)){clearInterval(MP.polInt);showMPRes(room)}
+}
+function mpStart(){
+  clearInterval(MP.polInt)
+  const room=DB.g('mpr_'+MP.code)
+  if(!room)return
+  GS.op=room.op;GS.diff=room.diff;GS.qs=room.qs
+  MP.inRace=true
+  startGame()
+}
+function showMPRes(room){
+  DB.d('mpr_'+MP.code)
+  const sorted=Object.entries(room.players).filter(([,p])=>p.time!==null).sort(([,a],[,b])=>a.time-b.time)
+  const rc=['r1','r2','r3']
+  document.getElementById('mpBody').innerHTML=`
+    <div class="sc-title" style="margin-bottom:10px">RACE OVER!</div>
+    ${sorted.map(([name,p],i)=>`<div class="lb-row ${name===CUR.name?'me':''}"><span class="lb-rank ${rc[i]||''}">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</span><span class="lb-name">${name}</span><span class="lb-time">${fmtSec(p.time)}</span></div>`).join('')}
+    <button class="btn btn-p" style="margin-top:14px" onclick="goHome()">↩ HOME</button>`
+  if(sorted[0]&&sorted[0][0]===CUR.name)celebrate('🏆 YOU WON!','The fastest racer!')
+}
 
-    document.getElementById("answer").addEventListener("input", function () {
-      if (this.value === "") return
+// ===== SCRATCH PAD =====
+let SC={cv:null,ctx:null,on:false,tool:'draw',col:'#00e5ff',lx:0,ly:0}
+function initScratch(){
+  SC.cv=document.getElementById('scratchCanvas')
+  if(!SC.cv)return
+  SC.cv.width=SC.cv.parentElement.offsetWidth||380;SC.cv.height=110
+  SC.ctx=SC.cv.getContext('2d')
+  SC.ctx.lineCap='round';SC.ctx.lineJoin='round'
+  SC.cv.onmousedown=e=>{SC.on=true;gp(e)}
+  SC.cv.onmousemove=e=>{if(SC.on)dr(e)}
+  SC.cv.onmouseup=SC.cv.onmouseleave=()=>SC.on=false
+  SC.cv.ontouchstart=e=>{e.preventDefault();SC.on=true;gp(e.touches[0])}
+  SC.cv.ontouchmove=e=>{e.preventDefault();if(SC.on)dr(e.touches[0])}
+  SC.cv.ontouchend=()=>SC.on=false
+}
+function gp(e){const r=SC.cv.getBoundingClientRect(),sx=SC.cv.width/r.width,sy=SC.cv.height/r.height;SC.lx=(e.clientX-r.left)*sx;SC.ly=(e.clientY-r.top)*sy}
+function dr(e){
+  const r=SC.cv.getBoundingClientRect(),sx=SC.cv.width/r.width,sy=SC.cv.height/r.height
+  const x=(e.clientX-r.left)*sx,y=(e.clientY-r.top)*sy
+  SC.ctx.beginPath();SC.ctx.moveTo(SC.lx,SC.ly);SC.ctx.lineTo(x,y)
+  if(SC.tool==='erase'){SC.ctx.globalCompositeOperation='destination-out';SC.ctx.lineWidth=22}
+  else{SC.ctx.globalCompositeOperation='source-over';SC.ctx.strokeStyle=SC.col;SC.ctx.lineWidth=3;SC.ctx.shadowColor=SC.col;SC.ctx.shadowBlur=5}
+  SC.ctx.stroke();SC.ctx.shadowBlur=0;SC.lx=x;SC.ly=y
+}
+function clearScratch(){if(SC.ctx)SC.ctx.clearRect(0,0,SC.cv.width,SC.cv.height)}
+function setTool(t){SC.tool=t;document.getElementById('stD').classList.toggle('on',t==='draw');document.getElementById('stE').classList.toggle('on',t==='erase')}
+function setColor(c,el){SC.col=c;SC.tool='draw';setTool('draw');document.querySelectorAll('.cdot').forEach(d=>d.classList.remove('on'));el.classList.add('on')}
 
-      if (Number(this.value) === correctAnswer) {
-        current++
-        updateProgressBar()
+// ===== UTILS =====
+function fmtMs(ms){const t=Math.floor(ms/1000),m=Math.floor(t/60),s=t%60;return p2(m)+':'+p2(s)}
+function fmtSec(sec){const t=Math.floor(sec),m=Math.floor(t/60),s=t%60;return p2(m)+':'+p2(s)}
+function p2(n){return String(n).padStart(2,'0')}
+function toast(msg,ms=2000){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),ms)}
 
-        if (current >= totalQuestions) {
-          finishRound()
-        } else {
-          newQuestion()
-        }
+// CLOCK
+setInterval(()=>{const n=new Date();document.getElementById('tbClk').textContent=p2(n.getHours())+':'+p2(n.getMinutes())},1000)
+;(()=>{const n=new Date();document.getElementById('tbClk').textContent=p2(n.getHours())+':'+p2(n.getMinutes())})()
 
-        this.value = ""
-      }
-    })
-  </script>
+// Hook finishGame to record MP time
+const _fg=window.finishGame||finishGame
+window.finishGame=function(){
+  finishGame()
+  if(MP.inRace&&MP.code){
+    const ms=Date.now()-GS.startTime,sec=ms/1000
+    const room=DB.g('mpr_'+MP.code)
+    if(room){room.players[CUR.name]={done:true,time:sec};DB.s('mpr_'+MP.code,room)}
+    MP.inRace=false
+    if(MP.polInt)clearInterval(MP.polInt)
+    // Poll for others finishing
+    navActive('mp');showSc('scMP')
+    document.getElementById('mpBody').innerHTML='<div class="sc-title" style="margin-bottom:8px">⌛ WAITING...</div><div class="hint">Waiting for other players to finish!</div><div class="mp-pl" id="mpPl"></div>'
+    MP.polInt=setInterval(()=>{const r=DB.g('mpr_'+MP.code);if(r)pollRoom(r)},1000)
+  }
+}
 
+// BOOT
+;(function(){
+  const sess=DB.g('mr_sess')
+  if(sess){const u=getU(sess);if(u){loginAs(u);return}}
+  showSc('scAuth')
+})()
+</script>
 </body>
 </html>
