@@ -223,6 +223,56 @@ input:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(-
 /* Toast */
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-60px);background:#fff;border:1.5px solid var(--acc);border-radius:99px;padding:8px 18px;font-size:13px;font-weight:600;color:var(--acc);z-index:10002;transition:transform .28s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:var(--shadow)}
 .toast.on{transform:translateX(-50%) translateY(0)}
+
+/* ── DOLL ROOM ── */
+.doll-shelf{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;margin:10px 0}
+.doll-card{
+  width:calc(50% - 6px);background:var(--acc3);border:1.5px solid var(--br);
+  border-radius:16px;padding:14px;text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.doll-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 25%,transparent)}
+.doll-card.locked{opacity:.45;cursor:default}
+.doll-card.locked:hover{transform:none;box-shadow:none}
+.doll-emoji{font-size:46px;display:block;margin-bottom:6px;animation:doll-bounce 2s ease-in-out infinite}
+@keyframes doll-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.doll-name{font-size:13px;font-weight:700;color:var(--tx)}
+.doll-game-tag{font-size:10px;font-weight:600;color:var(--acc);background:var(--acc2);padding:2px 8px;border-radius:99px;display:inline-block;margin-top:4px;opacity:.8}
+.doll-new{position:absolute;top:-5px;right:-5px;background:#ff3b30;color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px}
+.doll-empty{text-align:center;padding:30px 0}
+.doll-empty-ico{font-size:52px;display:block;margin-bottom:10px;opacity:.5}
+.doll-hint{font-size:12px;color:var(--mu);line-height:1.7;text-align:center}
+
+/* MINI GAME MODAL */
+.game-modal{position:fixed;inset:0;z-index:10005;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+.game-modal-box{background:var(--surf);border-radius:20px;border:2px solid var(--acc);width:100%;max-width:380px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);animation:pop .25s cubic-bezier(.34,1.56,.64,1)}
+.game-modal-top{background:linear-gradient(180deg,var(--acc2),var(--acc));padding:10px 14px;display:flex;align-items:center;gap:8px}
+.game-modal-title{font-size:15px;font-weight:700;color:white;flex:1}
+.game-modal-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.3);border:none;color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.game-modal-body{padding:16px}
+
+/* TIC TAC TOE */
+.ttt-board{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:14px 0}
+.ttt-cell{background:var(--acc3);border:2px solid var(--br);border-radius:12px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:all .15s;font-weight:700}
+.ttt-cell:hover{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,white)}
+.ttt-cell.x{color:var(--acc)}.ttt-cell.o{color:var(--pu)}
+.ttt-status{text-align:center;font-size:14px;font-weight:600;color:var(--tx);margin:8px 0}
+
+/* MEMORY GAME */
+.mem-board{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}
+.mem-card{aspect-ratio:1;border-radius:10px;border:2px solid var(--br);background:var(--acc);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:all .2s;transform-style:preserve-3d}
+.mem-card.flipped,.mem-card.matched{background:var(--acc3);border-color:var(--acc)}
+.mem-card.matched{opacity:.6;cursor:default}
+.mem-card-inner{display:none}.mem-card.flipped .mem-card-inner,.mem-card.matched .mem-card-inner{display:block}
+
+/* DOLL REWARD POPUP */
+.doll-reward{position:fixed;inset:0;z-index:10010;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.doll-reward-box{background:white;border:3px solid var(--acc);border-radius:24px;padding:28px 32px;text-align:center;box-shadow:0 16px 50px rgba(255,143,171,.4);animation:cpop .5s cubic-bezier(.34,1.56,.64,1) both;max-width:80vw;pointer-events:all}
+.dr-emoji{font-size:72px;display:block;animation:doll-bounce 1s ease-in-out infinite;margin-bottom:10px}
+.dr-title{font-size:20px;font-weight:700;color:var(--acc);margin-bottom:4px}
+.dr-sub{font-size:13px;color:var(--mu);line-height:1.6}
+.dr-btn{margin-top:14px;background:var(--acc);color:white;border:none;border-radius:12px;padding:12px 28px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -421,6 +471,20 @@ input:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(-
     <div class="win-title">Race friends ⚡</div>
   </div>
   <div class="win-body" id="mpBody"></div>
+
+<!-- DOLL ROOM -->
+<div class="sc" id="scDolls">
+<div style="padding:10px 0">
+<div class="win">
+  <div class="win-top">
+    <div class="win-dots"><div class="win-dot dot-r" onclick="goHome()" style="cursor:pointer"></div><div class="win-dot dot-y"></div><div class="win-dot dot-g"></div></div>
+    <div class="win-title">My doll room 🎀</div>
+  </div>
+  <div class="win-body" id="dollBody"></div>
+</div>
+</div>
+</div>
+
 </div>
 </div>
 </div>
@@ -431,6 +495,7 @@ input:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(-
   <button class="nb on" onclick="navGo('home')" id="nb-home"><span class="nb-ico">🏠</span><span class="nb-lbl">Home</span></button>
   <button class="nb" onclick="navGo('profile')" id="nb-profile"><span class="nb-ico">♡</span><span class="nb-lbl">Profile</span></button>
   <button class="nb" onclick="navGo('mp')" id="nb-mp"><span class="nb-ico">⚡</span><span class="nb-lbl">Race</span></button>
+  <button class="nb" onclick="navGo('dolls')" id="nb-dolls"><span class="nb-ico">🎀</span><span class="nb-lbl">Dolls</span></button>
 </div>
 
 <script>
@@ -682,7 +747,7 @@ function finishGame(){
   var u=getU(CUR.name)||CUR;
   u.totalGames=(u.totalGames||0)+1;
   u.history=u.history||[];
-  u.history.unshift({op:GS.op,diff:GS.diff,qs:GS.qs,sec:sec,errors:errors,ts:Date.now()});
+  u.history.unshift({ops:GS.ops.slice(),diff:GS.diff,qs:GS.qs,sec:sec,errors:errors,skipped:skipped,ts:Date.now(),perfect:(errors===0&&skipped===0)});
   if(u.history.length>100)u.history.length=100;
   var key=GS.ops.slice().sort().join('_')+'_'+GS.diff;
   var isPB=!u.bestTimes[key]||sec<u.bestTimes[key];
@@ -695,9 +760,22 @@ function finishGame(){
   var prev=u.achievements||[];
   u.achievements=ACHS.filter(function(a){return a.chk(u);}).map(function(a){return a.id;});
   var newAch=ACHS.filter(function(a){return !prev.includes(a.id)&&u.achievements.includes(a.id);});
+  // Check for doll reward: perfect round (0 errors, 0 skipped, within time)
+  var earnedDoll = (errors===0 && skipped===0 && ms<=60000);
+  if(earnedDoll){
+    u.dolls = u.dolls || [];
+    var dollTypes = ['🐱','🐰','🐻','🦊','🐼','🐸','🦋','🌸','⭐','🎀'];
+    var nextDoll = dollTypes[u.dolls.length % dollTypes.length];
+    if(!u.dollGames) u.dollGames = {};
+    // Give new doll game unlocks
+    var dollGames = ['tictactoe','memory','snake_mini','pairs'];
+    var unlockedGame = dollGames[Math.floor(u.dolls.length / 2) % dollGames.length];
+    u.dolls.push({type:nextDoll, name:'Doll #'+(u.dolls.length+1), ts:Date.now(), game:unlockedGame});
+    u.dollGames[unlockedGame] = true;
+  }
   saveU(u);CUR=u;
   if(MP.inRace){recordMPTime(sec);return;}
-  var modeH=u.history.filter(function(h){return h.op===GS.op&&h.diff===GS.diff;});
+  var modeH=u.history.filter(function(h){return h.diff===GS.diff;});
   var best=u.bestTimes[key];
   var avgErr=modeH.length?Math.round(modeH.reduce(function(s,h){return s+h.errors;},0)/modeH.length*10)/10:0;
   document.getElementById('resT').textContent=isPB?'New personal best! ✨':'Round complete!';
@@ -719,6 +797,10 @@ function finishGame(){
   document.getElementById('newAchW').innerHTML=newAch.length?'<div class="sep"></div><div class="lbl" style="margin-bottom:8px">New achievements 🎀</div>'+newAch.map(function(a){return '<div class="ach earn" style="margin-bottom:7px"><div class="ach-ico">'+a.icon+'</div><div><div class="ach-name">'+a.name+'</div><div class="ach-desc">'+a.desc+'</div></div></div>';}).join(''):'';
   drawChart(modeH.slice(0,20).map(function(h){return h.sec;}).reverse());
   showSc('scResult');
+  if(earnedDoll){
+    var nd=u.dolls[u.dolls.length-1];
+    setTimeout(function(){showDollReward(nd);},800);
+  }
   if(isPB)celebrate('🏆 Personal best!',fmtMs(ms));
   else if(errors===0&&GS.qs>=10)celebrate('✨ Perfect!','Zero mistakes!');
   else if(newAch.length)celebrate(newAch[0].icon+' '+newAch[0].name,newAch[0].desc);
@@ -781,46 +863,66 @@ function buildProfile(){
   var ops={add:'+',sub:'−',mul:'×',div:'÷'};
   var hist=(u.history||[]).slice(0,15);
   document.getElementById('recentG').innerHTML=hist.length
-    ?hist.map(function(h){return '<div class="hr-row"><span class="hr-op">'+ops[h.op]+'</span><span class="hr-info">'+h.diff+' · '+h.qs+'Q</span><span class="hr-t">'+fmtSec(h.sec)+'</span><span class="hr-e">✗'+h.errors+'</span><span class="hr-d">'+new Date(h.ts).toLocaleDateString()+'</span></div>';}).join('')
+    ?hist.map(function(h){
+      var opStr=(h.ops||[h.op]).map(function(o){return ops[o]||'?';}).join('');
+      var timeStr=fmtSec(h.sec);
+      var diffStr=(h.diff||'?');
+      var dateStr=new Date(h.ts).toLocaleDateString();
+      var perfect=h.perfect?'<span style="color:#34c759;font-size:11px"> ✨</span>':'';
+      return '<div class="hr-row"><span class="hr-op">'+opStr+'</span><span class="hr-info">'+diffStr+'</span><span class="hr-t">'+timeStr+'</span>'+perfect+'<span class="hr-e"> ✗'+h.errors+'</span><span class="hr-d"> '+dateStr+'</span></div>';
+    }).join('')
     :'<div class="hint" style="padding:16px 0">No games yet — play a round! ♡</div>';
 }
 
-// ── MULTIPLAYER ──
+// ── MULTIPLAYER (Claude API as backend) ──
 var MP={code:'',inRace:false,polInt:null};
+
+// Use Claude API storage via artifact storage
+var API_URL = 'https://api.anthropic.com/v1/messages';
+
+async function apiRoom(action, data) {
+  // Encode room data in a Claude conversation as shared storage
+  // We use a deterministic key in window.storage
+  try {
+    if (action === 'write') {
+      await window.storage.set('room_' + data.code, JSON.stringify(data), true);
+      return data;
+    } else if (action === 'read') {
+      var res = await window.storage.get('room_' + data.code, true);
+      return res ? JSON.parse(res.value) : null;
+    } else if (action === 'delete') {
+      await window.storage.delete('room_' + data.code, true);
+      return null;
+    }
+  } catch(e) {
+    // Fallback to localStorage if storage API not available
+    if (action === 'write') { DB.s('mpr_'+data.code, data); return data; }
+    if (action === 'read') { return DB.g('mpr_'+data.code); }
+    if (action === 'delete') { DB.d('mpr_'+data.code); return null; }
+  }
+}
+
 function showMP(){
   navActive('mp');showSc('scMP');
   document.getElementById('mpBody').innerHTML=
     '<div class="pg-title" style="font-size:20px;margin-bottom:3px">Race friends ⚡</div>'+
-    '<div class="pg-sub" style="margin-bottom:14px">same device or share file</div>'+
+    '<div class="pg-sub" style="margin-bottom:14px">works across devices!</div>'+
     '<div class="info-box">'+
-      '<b>How it works:</b><br>'+
-      '1. Create a room and get a 6-digit code<br>'+
-      '2. Friend opens this HTML file on their device<br>'+
-      '3. They register and tap Join room<br>'+
-      '4. Both tap Start — fastest wins! ⚡'+
+      '<b>How to race:</b><br>'+
+      '1. Create a room — you get a 6-digit code<br>'+
+      '2. Your friend opens this app on <b>any device</b><br>'+
+      '3. They register and tap "Join room"<br>'+
+      '4. Both tap Start — fastest wins! ⚡<br>'+
+      '<span style="color:var(--acc)">✓ Works across different phones & computers</span>'+
     '</div>'+
     '<div class="segs"><div class="seg on" id="mpT1" onclick="mpTab(\'c\')">Create room</div><div class="seg" id="mpT2" onclick="mpTab(\'j\')">Join room</div></div>'+
     '<div id="mpC">'+
-      '<div class="fld"><div class="lbl">Operation</div><div class="chips c4">'+
-        '<div class="chip on" onclick="pick(\'op\',this,\'add\')" style="font-size:20px">+</div>'+
-        '<div class="chip" onclick="pick(\'op\',this,\'sub\')" style="font-size:20px">−</div>'+
-        '<div class="chip" onclick="pick(\'op\',this,\'mul\')" style="font-size:20px">×</div>'+
-        '<div class="chip" onclick="pick(\'op\',this,\'div\')" style="font-size:20px">÷</div>'+
-      '</div></div>'+
       '<div class="fld"><div class="lbl">Difficulty</div><div class="chips c4">'+
-        '<div class="chip on" onclick="pick(\'diff\',this,\'easy\')">Easy</div>'+
-        '<div class="chip" onclick="pick(\'diff\',this,\'medium\')">Med</div>'+
-        '<div class="chip" onclick="pick(\'diff\',this,\'hard\')">Hard</div>'+
-        '<div class="chip" onclick="pick(\'diff\',this,\'ultra\')">Ultra</div>'+
+        '<div class="chip on" id="mpDiff_easy" onclick="mpPickDiff(this,\'easy\')">Easy</div>'+
+        '<div class="chip" id="mpDiff_medium" onclick="mpPickDiff(this,\'medium\')">Med</div>'+
+        '<div class="chip" id="mpDiff_hard" onclick="mpPickDiff(this,\'hard\')">Hard</div>'+
+        '<div class="chip" id="mpDiff_ultra" onclick="mpPickDiff(this,\'ultra\')">Ultra</div>'+
       '</div></div>'+
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'+
-        '<span class="lbl" style="margin:0;white-space:nowrap">Questions</span>'+
-        '<div class="chips c4" style="flex:1">'+
-          '<div class="chip on" onclick="pick(\'qs\',this,5)">5</div>'+
-          '<div class="chip" onclick="pick(\'qs\',this,10)">10</div>'+
-          '<div class="chip" onclick="pick(\'qs\',this,20)">20</div>'+
-        '</div>'+
-      '</div>'+
       '<button class="btn btn-main" onclick="createRoom()">Create room →</button>'+
     '</div>'+
     '<div id="mpJ" style="display:none">'+
@@ -829,80 +931,133 @@ function showMP(){
       '</div>'+
       '<button class="btn btn-main" onclick="joinRoom()">Join room →</button>'+
     '</div>';
+  MP.mpDiff = GS.diff;
 }
+
+var MP_DIFF = 'easy';
+function mpPickDiff(el, v){
+  document.querySelectorAll('[id^="mpDiff_"]').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+  MP_DIFF = v;
+}
+
 function mpTab(t){
   document.getElementById('mpC').style.display=t==='c'?'block':'none';
   document.getElementById('mpJ').style.display=t==='j'?'block':'none';
   document.getElementById('mpT1').classList.toggle('on',t==='c');
   document.getElementById('mpT2').classList.toggle('on',t==='j');
 }
-function createRoom(){
-  var code=String(Math.floor(100000+Math.random()*900000));MP.code=code;
-  var room={code:code,host:CUR.name,op:GS.op,diff:GS.diff,qs:GS.qs,players:{},ts:Date.now()};
-  room.players[CUR.name]={done:false,time:null};DB.s('mpr_'+code,room);renderRoom(room);
+
+async function createRoom(){
+  var code=String(Math.floor(100000+Math.random()*900000));
+  MP.code=code;
+  var room={code:code,host:CUR.name,ops:GS.ops.slice(),diff:MP_DIFF||GS.diff,players:{},ts:Date.now()};
+  room.players[CUR.name]={done:false,time:null,errors:0};
+  await apiRoom('write', room);
+  renderRoom(room);
 }
-function joinRoom(){
+
+async function joinRoom(){
   var code=(document.getElementById('jCode').value||'').trim();
   if(code.length!==6){toast('Enter 6-digit code');return;}
-  var room=DB.g('mpr_'+code);
-  if(!room){toast('Room not found');return;}
-  MP.code=code;room.players[CUR.name]={done:false,time:null};DB.s('mpr_'+code,room);renderRoom(room);
+  var btn = document.querySelector('#mpJ .btn-main');
+  if(btn){btn.textContent='Looking…';btn.disabled=true;}
+  var room=await apiRoom('read',{code:code});
+  if(btn){btn.textContent='Join room →';btn.disabled=false;}
+  if(!room){toast('Room not found — check the code!');return;}
+  MP.code=code;
+  room.players[CUR.name]={done:false,time:null,errors:0};
+  await apiRoom('write',room);
+  renderRoom(room);
 }
+
 function renderRoom(room){
   document.getElementById('mpBody').innerHTML=
     '<div class="lbl" style="margin-bottom:6px">Room code</div>'+
     '<div class="code-big">'+room.code+'</div>'+
-    '<div class="hint" style="margin-bottom:12px">Share this code with friends ♡</div>'+
-    '<div class="lbl" style="margin-bottom:6px">Players</div>'+
+    '<div class="hint" style="margin-bottom:4px">Share this code with friends ♡</div>'+
+    '<div class="hint" style="margin-bottom:12px;font-size:11px">Works on any device — they open the app and join</div>'+
+    '<div class="lbl" style="margin-bottom:6px">Players (<span id="mpCount">1</span>)</div>'+
     '<div class="mp-list" id="mpPl"></div>'+
     '<div class="sep"></div>'+
     '<button class="btn btn-main" onclick="mpStart()">▶ Start race!</button>'+
-    '<button class="btn btn-ghost" onclick="goHome()">Leave room</button>';
+    '<button class="btn btn-ghost" onclick="leaveRoom()">Leave room</button>';
   pollRoom();
   if(MP.polInt)clearInterval(MP.polInt);
-  MP.polInt=setInterval(function(){var r=DB.g('mpr_'+MP.code);if(r)pollRoom(r);},1200);
+  MP.polInt=setInterval(pollRoom,1500);
 }
-function pollRoom(room){
-  if(!room)room=DB.g('mpr_'+MP.code);if(!room)return;
+
+async function pollRoom(){
+  var room=await apiRoom('read',{code:MP.code});
+  if(!room)return;
   var el=document.getElementById('mpPl');if(!el)return;
+  var count = Object.keys(room.players).length;
+  var countEl = document.getElementById('mpCount');
+  if(countEl) countEl.textContent = count;
   el.innerHTML=Object.entries(room.players).map(function(e){
     var n=e[0],p=e[1];
-    return '<div class="mp-row"><div class="mp-dot '+(p.time?'rdy':'wt')+'"></div><span class="mp-name">'+n+(n===room.host?' 👑':'')+'</span><span class="mp-status">'+(p.time?fmtSec(p.time):'Waiting…')+'</span></div>';
+    return '<div class="mp-row">'+
+      '<div class="mp-dot '+(p.time!==null?'rdy':'wt')+'"></div>'+
+      '<span class="mp-name">'+n+(n===room.host?' 👑':'')+'</span>'+
+      '<span class="mp-status">'+(p.time!==null?fmtSec(p.time)+' ✓':'Ready')+'</span>'+
+      '</div>';
   }).join('');
-  var all=Object.values(room.players);
-  if(all.length>=2&&all.every(function(p){return p.time!==null;})){clearInterval(MP.polInt);showMPRes(room);}
+  if(count>=2 && Object.values(room.players).every(function(p){return p.time!==null;})){
+    clearInterval(MP.polInt);showMPRes(room);
+  }
 }
-function mpStart(){
-  clearInterval(MP.polInt);var room=DB.g('mpr_'+MP.code);if(!room)return;
-  GS.op=room.op;GS.diff=room.diff;GS.qs=room.qs;MP.inRace=true;startGame();
+
+async function mpStart(){
+  clearInterval(MP.polInt);
+  var room=await apiRoom('read',{code:MP.code});
+  if(!room)return;
+  GS.ops=room.ops||GS.ops;GS.diff=room.diff||GS.diff;GS.qs=10;
+  MP.inRace=true;startGame();
 }
-function recordMPTime(sec){
+
+async function leaveRoom(){
+  clearInterval(MP.polInt);
+  var room=await apiRoom('read',{code:MP.code});
+  if(room){
+    delete room.players[CUR.name];
+    if(Object.keys(room.players).length===0){await apiRoom('delete',room);}
+    else{await apiRoom('write',room);}
+  }
+  goHome();
+}
+
+async function recordMPTime(sec){
   if(!MP.inRace||!MP.code)return;
-  var room=DB.g('mpr_'+MP.code);
-  if(room){room.players[CUR.name]={done:true,time:sec};DB.s('mpr_'+MP.code,room);}
+  var room=await apiRoom('read',{code:MP.code});
+  if(room){
+    room.players[CUR.name]={done:true,time:sec,errors:GS.errors};
+    await apiRoom('write',room);
+  }
   MP.inRace=false;
-  var r=DB.g('mpr_'+MP.code);
-  var all=r?Object.values(r.players):[];
-  if(all.length>=2&&all.every(function(p){return p.time!==null;})){showMPRes(r);return;}
   navActive('mp');showSc('scMP');
   document.getElementById('mpBody').innerHTML=
     '<div class="pg-title" style="font-size:20px;margin-bottom:6px">Waiting… ⏳</div>'+
-    '<div class="hint" style="margin-bottom:12px">Your time: <b style="color:var(--acc);font-size:20px">'+fmtSec(sec)+'</b></div>'+
+    '<div class="hint" style="margin-bottom:12px">Your time: <b style="color:var(--acc);font-size:22px">'+fmtSec(sec)+'</b></div>'+
     '<div class="mp-list" id="mpPl"></div>';
   if(MP.polInt)clearInterval(MP.polInt);
-  MP.polInt=setInterval(function(){var r=DB.g('mpr_'+MP.code);if(r)pollRoom(r);},1000);
+  MP.polInt=setInterval(pollRoom,1500);
 }
-function showMPRes(room){
-  if(MP.polInt)clearInterval(MP.polInt);DB.d('mpr_'+MP.code);
-  var sorted=Object.entries(room.players).filter(function(e){return e[1].time!==null;}).sort(function(a,b){return a[1].time-b[1].time;});
+
+async function showMPRes(room){
+  if(MP.polInt)clearInterval(MP.polInt);
+  await apiRoom('delete',{code:MP.code});
+  var sorted=Object.entries(room.players)
+    .filter(function(e){return e[1].time!==null;})
+    .sort(function(a,b){return a[1].time-b[1].time;});
   var medals=['🥇','🥈','🥉'];
   document.getElementById('mpBody').innerHTML=
     '<div class="pg-title" style="font-size:20px;margin-bottom:12px">Race results ⚡</div>'+
     sorted.map(function(e,i){
       return '<div class="mp-row" style="'+(e[0]===CUR.name?'border-color:var(--acc)':'')+'">'+
-        '<span style="font-size:20px;width:26px">'+( medals[i]||'#'+(i+1))+'</span>'+
+        '<span style="font-size:20px;width:28px">'+( medals[i]||'#'+(i+1))+'</span>'+
         '<span class="mp-name">'+e[0]+'</span>'+
         '<span style="font-size:15px;font-weight:700;color:var(--acc);font-variant-numeric:tabular-nums">'+fmtSec(e[1].time)+'</span>'+
+        '<span style="font-size:11px;color:#e05070;margin-left:4px">✗'+e[1].errors+'</span>'+
         '</div>';
     }).join('')+
     '<button class="btn btn-main" style="margin-top:14px" onclick="goHome()">Home</button>'+
@@ -915,6 +1070,329 @@ function p2(n){return String(n).padStart(2,'0');}
 function fmtMs(ms){var t=Math.floor(ms/1000),m=Math.floor(t/60),s=t%60;return p2(m)+':'+p2(s);}
 function fmtSec(sec){var t=Math.floor(sec),m=Math.floor(t/60),s=t%60;return p2(m)+':'+p2(s);}
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2200);}
+
+
+// ── DOLLS ──
+var DOLL_GAMES = {
+  tictactoe: {name:'Tic Tac Toe', icon:'⭕'},
+  memory:    {name:'Memory', icon:'🃏'},
+  snake_mini:{name:'Mini Snake', icon:'🐍'},
+  pairs:     {name:'Word Pairs', icon:'🔤'}
+};
+
+function navGo_dolls(){
+  navActive('dolls');
+  buildDollRoom();
+  showSc('scDolls');
+}
+
+function buildDollRoom(){
+  var u = getU(CUR.name)||CUR;
+  var dolls = u.dolls||[];
+  var body = document.getElementById('dollBody');
+  if(!body) return;
+
+  if(dolls.length === 0){
+    body.innerHTML =
+      '<div class="doll-empty">'+
+        '<span class="doll-empty-ico">🎀</span>'+
+        '<div class="pg-title" style="font-size:18px;margin-bottom:8px">No dolls yet!</div>'+
+        '<div class="doll-hint">Complete a round of 10 questions<br>with <b>0 mistakes</b> in under 1 minute<br>to earn your first doll ♡<br><br>Each doll unlocks a mini game!</div>'+
+        '<button class="btn btn-main" onclick="goHome()" style="margin-top:16px">Go play →</button>'+
+      '</div>';
+    return;
+  }
+
+  var html = '<div class="lbl" style="margin-bottom:10px">'+dolls.length+' doll'+(dolls.length>1?'s':'')+' collected ♡</div>';
+  html += '<div class="doll-shelf">';
+
+  dolls.forEach(function(doll, i){
+    var gameInfo = DOLL_GAMES[doll.game]||{name:'?',icon:'?'};
+    var isNew = (Date.now()-doll.ts < 86400000);
+    html += '<div class="doll-card" onclick="openDollGame(\''+doll.game+'\',\''+doll.type+'\')">' +
+      (isNew ? '<div class="doll-new">NEW!</div>' : '') +
+      '<span class="doll-emoji">'+doll.type+'</span>'+
+      '<div class="doll-name">'+doll.name+'</div>'+
+      '<div class="doll-game-tag">'+gameInfo.icon+' '+gameInfo.name+'</div>'+
+      '</div>';
+  });
+
+  // show next locked doll hint
+  html += '<div class="doll-card locked">'+
+    '<span style="font-size:46px;display:block;margin-bottom:6px">🔒</span>'+
+    '<div class="doll-name" style="color:var(--mu)">Next doll</div>'+
+    '<div class="doll-game-tag">Perfect round to unlock</div>'+
+    '</div>';
+
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function showDollReward(doll){
+  var gameInfo = DOLL_GAMES[doll.game]||{name:'Mini game',icon:'🎮'};
+  var el = document.createElement('div');
+  el.className = 'doll-reward';
+  el.id = 'dollReward';
+  el.innerHTML =
+    '<div class="doll-reward-box">'+
+      '<span class="dr-emoji">'+doll.type+'</span>'+
+      '<div class="dr-title">New doll earned! 🎀</div>'+
+      '<div class="dr-sub">Perfect round — zero mistakes!<br>Your doll unlocks: <b>'+gameInfo.icon+' '+gameInfo.name+'</b></div>'+
+      '<button class="dr-btn" onclick="closeDollReward()">Yay! Go see my doll →</button>'+
+    '</div>';
+  document.body.appendChild(el);
+  spawnConfetti();
+}
+
+function closeDollReward(){
+  var el = document.getElementById('dollReward');
+  if(el) el.remove();
+  navGo('dolls');
+}
+
+function openDollGame(game, dollEmoji){
+  var modal = document.createElement('div');
+  modal.className = 'game-modal';
+  modal.id = 'gameModal';
+  var gameInfo = DOLL_GAMES[game]||{name:'Game',icon:'🎮'};
+  var inner = '';
+
+  if(game === 'tictactoe'){
+    inner = buildTicTacToe(dollEmoji);
+  } else if(game === 'memory'){
+    inner = buildMemory(dollEmoji);
+  } else if(game === 'snake_mini'){
+    inner = buildSnakeMini(dollEmoji);
+  } else if(game === 'pairs'){
+    inner = buildPairs(dollEmoji);
+  }
+
+  modal.innerHTML =
+    '<div class="game-modal-box">'+
+      '<div class="game-modal-top">'+
+        '<span style="font-size:18px">'+dollEmoji+'</span>'+
+        '<span class="game-modal-title">'+gameInfo.icon+' '+gameInfo.name+'</span>'+
+        '<button class="game-modal-close" onclick="closeGame()">✕</button>'+
+      '</div>'+
+      '<div class="game-modal-body" id="gameModalBody">'+inner+'</div>'+
+    '</div>';
+  document.body.appendChild(modal);
+  if(game === 'snake_mini') initSnakeMini();
+  if(game === 'memory') initMemory();
+}
+
+function closeGame(){
+  var m = document.getElementById('gameModal');
+  if(m) m.remove();
+  if(window._snakeInt) clearInterval(window._snakeInt);
+}
+
+// ── TIC TAC TOE ──
+var TTT = {board:['','','','','','','','',''], turn:'X', over:false};
+function buildTicTacToe(doll){
+  TTT = {board:['','','','','','','','',''], turn:'X', over:false};
+  return tttHTML(doll);
+}
+function tttHTML(doll){
+  var cells = TTT.board.map(function(v,i){
+    return '<div class="ttt-cell '+(v?v.toLowerCase():'')+(TTT.over?'':' hover')+'" onclick="tttClick('+i+')">'+v+'</div>';
+  }).join('');
+  return '<div class="ttt-status" id="tttSt">'+doll+' You (✕) vs '+doll+' Doll (○)</div>'+
+    '<div class="ttt-board" id="tttBoard">'+cells+'</div>'+
+    '<button class="btn btn-ghost" style="margin-top:0" onclick="resetTTT(\''+doll+'\')">New game</button>';
+}
+function tttClick(i){
+  if(TTT.board[i]||TTT.over) return;
+  TTT.board[i] = TTT.turn;
+  var w = tttCheck();
+  if(w){TTT.over=true; document.getElementById('tttSt').textContent = w==='draw'?'Draw!':''+(w==='X'?'You win! 🎉':'Doll wins 🤖');}
+  else{
+    TTT.turn = 'O';
+    document.getElementById('tttSt').textContent = "Doll's turn…";
+    setTimeout(tttAI, 400);
+  }
+  redrawTTT();
+}
+function tttAI(){
+  if(TTT.over) return;
+  // Try win, then block, then random
+  var b = TTT.board;
+  function tryWin(sym){
+    var lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for(var l of lines){
+      var vals=l.map(function(x){return b[x];});
+      if(vals.filter(function(v){return v===sym;}).length===2 && vals.includes('')){
+        return l[vals.indexOf('')];
+      }
+    }return -1;
+  }
+  var move = tryWin('O');
+  if(move<0) move = tryWin('X');
+  if(move<0){var empty=b.map(function(v,i){return v?-1:i;}).filter(function(x){return x>=0;});move=empty[Math.floor(Math.random()*empty.length)];}
+  TTT.board[move]='O';
+  var w=tttCheck();
+  TTT.turn='X';
+  if(w){TTT.over=true;document.getElementById('tttSt').textContent=w==='draw'?'Draw!':w==='X'?'You win! 🎉':'Doll wins 🤖';}
+  else{document.getElementById('tttSt').textContent='Your turn (✕)';}
+  redrawTTT();
+}
+function tttCheck(){
+  var b=TTT.board;
+  var lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(var l of lines){if(b[l[0]]&&b[l[0]]===b[l[1]]&&b[l[1]]===b[l[2]])return b[l[0]];}
+  if(b.every(function(v){return v;}))return 'draw';
+  return null;
+}
+function redrawTTT(){
+  var bd=document.getElementById('tttBoard');if(!bd)return;
+  bd.innerHTML=TTT.board.map(function(v,i){return '<div class="ttt-cell '+(v?v.toLowerCase():'')+'" onclick="tttClick('+i+')">'+v+'</div>';}).join('');
+}
+function resetTTT(doll){
+  TTT={board:['','','','','','','','',''],turn:'X',over:false};
+  document.getElementById('gameModalBody').innerHTML=tttHTML(doll);
+}
+
+// ── MEMORY ──
+var MEM = {cards:[], flipped:[], matched:0};
+function buildMemory(doll){
+  return '<div class="ttt-status">Match the pairs! 🃏</div><div class="mem-board" id="memBoard"></div>';
+}
+function initMemory(){
+  var emojis = ['🌸','⭐','🎀','🦋','🌙','💎','🍓','🌈'];
+  var deck = emojis.concat(emojis);
+  // shuffle
+  for(var i=deck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=deck[i];deck[i]=deck[j];deck[j]=t;}
+  MEM = {cards:deck.map(function(e,i){return{id:i,val:e,flipped:false,matched:false};}), flipped:[], matched:0};
+  renderMem();
+}
+function renderMem(){
+  var bd=document.getElementById('memBoard');if(!bd)return;
+  bd.innerHTML=MEM.cards.map(function(card){
+    return '<div class="mem-card'+(card.flipped||card.matched?' flipped':'')+(card.matched?' matched':'')+'" onclick="memFlip('+card.id+')">'+
+      '<span class="mem-card-inner">'+(card.flipped||card.matched?card.val:'')+'</span>'+
+      '</div>';
+  }).join('');
+}
+function memFlip(id){
+  var card=MEM.cards[id];
+  if(card.flipped||card.matched||MEM.flipped.length>=2)return;
+  card.flipped=true;MEM.flipped.push(id);
+  renderMem();
+  if(MEM.flipped.length===2){
+    var a=MEM.cards[MEM.flipped[0]],b=MEM.cards[MEM.flipped[1]];
+    if(a.val===b.val){
+      setTimeout(function(){a.matched=true;b.matched=true;MEM.flipped=[];MEM.matched+=2;renderMem();
+        if(MEM.matched===MEM.cards.length){document.querySelector('.ttt-status').textContent='You won! 🎉';}
+      },500);
+    }else{
+      setTimeout(function(){a.flipped=false;b.flipped=false;MEM.flipped=[];renderMem();},800);
+    }
+  }
+}
+
+// ── MINI SNAKE ──
+var SNAKE = {cells:[],dir:{x:1,y:0},food:{x:5,y:5},score:0,alive:true,size:10};
+function buildSnakeMini(doll){
+  return '<div class="ttt-status" id="snakeSt">Use arrow keys or buttons ♡</div>'+
+    '<canvas id="snakeCanvas" width="280" height="280" style="display:block;margin:0 auto;border-radius:12px;border:1.5px solid var(--br);background:var(--acc3)"></canvas>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;max-width:180px;margin-left:auto;margin-right:auto">'+
+      '<div></div><div class="nk" onclick="snakeDir(0,-1)" style="padding:10px;border-radius:10px">↑</div><div></div>'+
+      '<div class="nk" onclick="snakeDir(-1,0)" style="padding:10px;border-radius:10px">←</div>'+
+      '<div class="nk" onclick="snakeDir(1,0)" style="padding:10px;border-radius:10px">→</div>'+
+      '<div></div><div class="nk" onclick="snakeDir(0,1)" style="padding:10px;border-radius:10px">↓</div><div></div>'+
+    '</div>';
+}
+function initSnakeMini(){
+  var mid=Math.floor(SNAKE.size/2);
+  SNAKE={cells:[{x:mid,y:mid},{x:mid-1,y:mid}],dir:{x:1,y:0},food:{x:7,y:3},score:0,alive:true,size:10};
+  if(window._snakeInt)clearInterval(window._snakeInt);
+  window._snakeInt=setInterval(snakeTick,200);
+  document.addEventListener('keydown',snakeKey);
+}
+function snakeKey(e){var m={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};if(m[e.key]){e.preventDefault();var d=m[e.key];if(d.x!==-SNAKE.dir.x||d.y!==-SNAKE.dir.y)SNAKE.dir=d;}}
+function snakeDir(x,y){if(x!==-SNAKE.dir.x||y!==-SNAKE.dir.y)SNAKE.dir={x:x,y:y};}
+function snakeTick(){
+  if(!SNAKE.alive)return;
+  var head={x:SNAKE.cells[0].x+SNAKE.dir.x,y:SNAKE.cells[0].y+SNAKE.dir.y};
+  var s=SNAKE.size;
+  if(head.x<0||head.x>=s||head.y<0||head.y>=s||SNAKE.cells.some(function(c){return c.x===head.x&&c.y===head.y;})){
+    SNAKE.alive=false;clearInterval(window._snakeInt);
+    var st=document.getElementById('snakeSt');if(st)st.textContent='Game over! Score: '+SNAKE.score;return;
+  }
+  SNAKE.cells.unshift(head);
+  if(head.x===SNAKE.food.x&&head.y===SNAKE.food.y){
+    SNAKE.score++;
+    var st=document.getElementById('snakeSt');if(st)st.textContent='Score: '+SNAKE.score+' ♡';
+    SNAKE.food={x:Math.floor(Math.random()*s),y:Math.floor(Math.random()*s)};
+  }else{SNAKE.cells.pop();}
+  snakeDraw();
+}
+function snakeDraw(){
+  var cv=document.getElementById('snakeCanvas');if(!cv)return;
+  var ctx=cv.getContext('2d'),cs=cv.width/SNAKE.size;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // grid
+  ctx.strokeStyle='rgba(255,143,171,.15)';ctx.lineWidth=.5;
+  for(var i=0;i<=SNAKE.size;i++){ctx.beginPath();ctx.moveTo(i*cs,0);ctx.lineTo(i*cs,cv.height);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*cs);ctx.lineTo(cv.width,i*cs);ctx.stroke();}
+  // food
+  ctx.fillStyle='#ff5f7a';ctx.beginPath();ctx.arc(SNAKE.food.x*cs+cs/2,SNAKE.food.y*cs+cs/2,cs/2.5,0,Math.PI*2);ctx.fill();
+  // snake
+  SNAKE.cells.forEach(function(c,i){
+    ctx.fillStyle=i===0?'var(--acc)':'#ffb3c6';
+    ctx.beginPath();ctx.roundRect(c.x*cs+1,c.y*cs+1,cs-2,cs-2,4);ctx.fill();
+  });
+}
+
+// ── PAIRS ──
+var PAIRS={cards:[],sel:null,matched:0,moves:0};
+var PAIR_DATA=[['🐱','Cat'],['🐰','Rabbit'],['🌸','Flower'],['⭐','Star'],['🎀','Bow'],['🦋','Butterfly']];
+function buildPairs(doll){
+  return '<div class="ttt-status" id="pairSt">Match emoji to word! 🔤</div>'+
+    '<div id="pairsBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0"></div>'+
+    '<button class="btn btn-ghost" style="margin-top:0" onclick="resetPairs()">New game</button>';
+}
+function resetPairs(){
+  var deck=[];
+  PAIR_DATA.forEach(function(p){deck.push({val:p[0],key:p[0],type:'emoji'});deck.push({val:p[1],key:p[0],type:'word'});});
+  for(var i=deck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=deck[i];deck[i]=deck[j];deck[j]=t;}
+  PAIRS={cards:deck,sel:null,matched:0,moves:0};
+  renderPairs();
+}
+function renderPairs(){
+  var bd=document.getElementById('pairsBoard');if(!bd){resetPairs();return;}
+  bd.innerHTML=PAIRS.cards.map(function(card,i){
+    var bg=card.matched?'var(--acc)':card.selected?'var(--acc2)':'var(--acc3)';
+    var col=card.matched?'white':'var(--tx)';
+    return '<div onclick="pairsClick('+i+')" style="background:'+bg+';color:'+col+';border:1.5px solid var(--br);border-radius:10px;padding:10px 4px;text-align:center;font-size:'+( card.type==='emoji'?'22':'13')+'px;font-weight:600;cursor:pointer;transition:all .15s;min-height:50px;display:flex;align-items:center;justify-content:center">'+card.val+'</div>';
+  }).join('');
+}
+function pairsClick(i){
+  var card=PAIRS.cards[i];
+  if(card.matched)return;
+  if(PAIRS.sel===null){PAIRS.sel=i;card.selected=true;renderPairs();return;}
+  var prev=PAIRS.cards[PAIRS.sel];
+  PAIRS.moves++;
+  if(prev.key===card.key&&prev.type!==card.type){
+    prev.matched=true;card.matched=true;PAIRS.matched+=2;
+    var st=document.getElementById('pairSt');
+    if(PAIRS.matched===PAIRS.cards.length&&st)st.textContent='Perfect! 🎉 '+PAIRS.moves+' moves';
+    else if(st)st.textContent='Match! ✨';
+  }else{
+    var st=document.getElementById('pairSt');if(st)st.textContent='Not a match, try again!';
+    prev.selected=false;card.selected=false;
+    setTimeout(renderPairs,600);
+  }
+  PAIRS.sel=null;prev.selected=false;card.selected=false;
+  setTimeout(renderPairs,card.matched?0:620);
+}
+
+// Patch navGo to support dolls
+var _origNavGo = navGo;
+function navGo(t){
+  if(t==='dolls'){navActive('dolls');buildDollRoom();showSc('scDolls');return;}
+  _origNavGo(t);
+}
+
 
 // ── BOOT ──
 (function(){
