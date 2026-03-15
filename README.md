@@ -1,2 +1,2 @@
-# math-app
+# math
 My math game
