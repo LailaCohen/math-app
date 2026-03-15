@@ -1022,20 +1022,6 @@ buildDollRoom();
 showSc('scDolls');
 }
 
-function giveTestDoll(){
-var u=getU(CUR.name)||CUR;
-u.dolls=u.dolls||[];
-var types=['🐱','🐰','🐻','🦊','🐼'];
-var games=['tictactoe','memory','snake_mini','pairs'];
-var i=u.dolls.length;
-var g=games[i%games.length];
-u.dolls.push({type:types[i%types.length],name:'Doll '+(i+1),ts:Date.now()-100000,game:g});
-u.dollGames=u.dollGames||{};
-u.dollGames[g]=true;
-saveU(u);CUR=u;
-buildDollRoom();
-}
-
 function buildDollRoom(){
 var body=document.getElementById('dollBody');
 if(!body){setTimeout(buildDollRoom,100);return;}
@@ -1050,7 +1036,6 @@ body.innerHTML='<div class="doll-empty">'+
 '<div class="pg-title" style="font-size:18px;margin-bottom:8px">No dolls yet!</div>'+
 '<div class="doll-hint">Finish 10 questions with<br><b>0 mistakes</b> in under a minute<br>to earn your first doll ♡<br><br>Each doll unlocks a mini game!</div>'+
 '<button class="btn btn-main" onclick="goHome()" style="margin-top:14px">▶ Go play!</button>'+
-'<button class="btn btn-ghost" onclick="giveTestDoll()" style="font-size:12px">🎀 Give me a doll to try</button>'+
 '</div>';
 return;
 }
@@ -1073,8 +1058,7 @@ html+='<div class="doll-card locked">'+
 '<div class="doll-name" style="color:var(--mu)">Next doll</div>'+
 '<div class="doll-game-tag">Perfect round!</div>'+
 '</div>'+
-'</div>'+
-'<button class="btn btn-ghost" onclick="giveTestDoll()" style="font-size:12px;margin-top:8px">+ Add test doll</button>';
+'</div>'+;
 
 body.innerHTML=html;
 var cards=body.querySelectorAll('.doll-card:not(.locked)');
